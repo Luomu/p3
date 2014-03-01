@@ -96,13 +96,13 @@ for i = 1,#buttonDefs do
 	buttonSet[i] = button
 end
 
-local menu = 
+local menu =
 	ui:Grid(1, { 0.2, 0.6, 0.2 })
 		:SetRow(0, {
 			ui:Grid({ 0.1, 0.8, 0.1 }, 1)
 				:SetCell(1, 0,
 					ui:Align("LEFT",
-						ui:Label("Pioneer"):SetFont("HEADING_XLARGE")
+						ui:Label("P3"):SetFont("HEADING_XLARGE")
 					)
 				)
 		})

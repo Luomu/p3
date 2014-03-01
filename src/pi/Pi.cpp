@@ -271,7 +271,7 @@ void Pi::Init(const std::map<std::string,std::string> &options)
 	videoSettings.useTextureCompression = (config->Int("UseTextureCompression") != 0);
 	videoSettings.enableDebugMessages = (config->Int("EnableGLDebug") != 0);
 	videoSettings.iconFile = OS::GetIconFilename();
-	videoSettings.title = "Pioneer";
+	videoSettings.title = "P3";
 
 	Pi::renderer = Graphics::Init(videoSettings);
 	{

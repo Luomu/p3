@@ -51,9 +51,9 @@ namespace FileSystem {
 		}
 
 #ifdef __APPLE__
-		path += "Library/Application Support/Pioneer";
+		path += "Library/Application Support/P3";
 #else
-		path += ".pioneer";
+		path += ".p3";
 #endif
 		return path;
 	}
