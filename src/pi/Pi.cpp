@@ -1,0 +1,1089 @@
+// Copyright © 2008-2014 Pioneer Developers. See AUTHORS.txt for details
+// Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
+
+#include "Pi.h"
+#include "libs.h"
+#include "CityOnPlanet.h"
+#include "DeathView.h"
+#include "Factions.h"
+#include "FileSystem.h"
+#include "Frame.h"
+#include "Game.h"
+#include "GeoSphere.h"
+#include "Intro.h"
+#include "Lang.h"
+#include "LuaComms.h"
+#include "LuaConsole.h"
+#include "LuaConstants.h"
+#include "LuaDev.h"
+#include "LuaEngine.h"
+#include "LuaEquipDef.h"
+#include "LuaEvent.h"
+#include "LuaFileSystem.h"
+#include "LuaFormat.h"
+#include "LuaGame.h"
+#include "LuaLang.h"
+#include "LuaManager.h"
+#include "LuaNameGen.h"
+#include "LuaRef.h"
+#include "LuaShipDef.h"
+#include "LuaSpace.h"
+#include "LuaTimer.h"
+#include "ModelCache.h"
+#include "ModManager.h"
+#include "OS.h"
+#include "Planet.h"
+#include "Player.h"
+#include "SDLWrappers.h"
+#include "SectorView.h"
+#include "Serializer.h"
+#include "ShipCpanel.h"
+#include "ShipType.h"
+#include "Sound.h"
+#include "Space.h"
+#include "SpaceStation.h"
+#include "Star.h"
+#include "StringF.h"
+#include "UIView.h"
+#include "WorldView.h"
+#include "KeyBindings.h"
+#include "EnumStrings.h"
+#include "galaxy/CustomSystem.h"
+#include "galaxy/Galaxy.h"
+#include "galaxy/StarSystem.h"
+#include "gameui/Lua.h"
+#include "graphics/Graphics.h"
+#include "graphics/Light.h"
+#include "graphics/Renderer.h"
+#include "gui/Gui.h"
+#include "scenegraph/Model.h"
+#include "scenegraph/Lua.h"
+#include "ui/Context.h"
+#include "ui/Lua.h"
+#include <algorithm>
+#include <sstream>
+
+float Pi::gameTickAlpha;
+sigc::signal<void, SDL_Keysym*> Pi::onKeyPress;
+sigc::signal<void, SDL_Keysym*> Pi::onKeyRelease;
+sigc::signal<void, int, int, int> Pi::onMouseButtonUp;
+sigc::signal<void, int, int, int> Pi::onMouseButtonDown;
+sigc::signal<void, bool> Pi::onMouseWheel;
+sigc::signal<void> Pi::onPlayerChangeTarget;
+sigc::signal<void> Pi::onPlayerChangeFlightControlState;
+sigc::signal<void> Pi::onPlayerChangeEquipment;
+sigc::signal<void, const SpaceStation*> Pi::onDockingClearanceExpired;
+LuaSerializer *Pi::luaSerializer;
+LuaTimer *Pi::luaTimer;
+LuaNameGen *Pi::luaNameGen;
+int Pi::keyModState;
+std::map<SDL_Keycode,bool> Pi::keyState; // XXX SDL2 SDLK_LAST
+char Pi::mouseButton[6];
+int Pi::mouseMotion[2];
+bool Pi::doingMouseGrab = false;
+bool Pi::warpAfterMouseGrab = false;
+int Pi::mouseGrabWarpPos[2];
+Player *Pi::player;
+View *Pi::currentView;
+WorldView *Pi::worldView;
+DeathView *Pi::deathView;
+UIView *Pi::spaceStationView;
+UIView *Pi::infoView;
+SectorView *Pi::sectorView;
+UIView *Pi::settingsView;
+ShipCpanel *Pi::cpan;
+LuaConsole *Pi::luaConsole;
+Game *Pi::game;
+Random Pi::rng;
+float Pi::frameTime;
+#if WITH_DEVKEYS
+bool Pi::showDebugInfo = false;
+#endif
+#if PIONEER_PROFILER
+std::string Pi::profilerPath;
+bool Pi::doProfileSlow = false;
+bool Pi::doProfileOne = false;
+#endif
+int Pi::statSceneTris;
+GameConfig *Pi::config;
+struct DetailLevel Pi::detail = { 0, 0 };
+bool Pi::joystickEnabled;
+bool Pi::mouseYInvert;
+std::map<SDL_JoystickID,Pi::JoystickState> Pi::joysticks;
+Gui::Fixed *Pi::menu;
+bool Pi::DrawGUI = true;
+Graphics::Renderer *Pi::renderer;
+RefCountedPtr<UI::Context> Pi::ui;
+ModelCache *Pi::modelCache;
+Intro *Pi::intro;
+SDLGraphics *Pi::sdl;
+
+std::unique_ptr<JobQueue> Pi::jobQueue;
+
+static void draw_progress(UI::Gauge *gauge, UI::Label *label, float progress)
+{
+	gauge->SetValue(progress);
+	label->SetText(stringf(Lang::SIMULATING_UNIVERSE_EVOLUTION_N_BYEARS, formatarg("age", progress * 13.7f)));
+
+	Pi::renderer->ClearScreen();
+	Pi::ui->Update();
+	Pi::ui->Draw();
+	Pi::renderer->SwapBuffers();
+}
+
+static void LuaInit()
+{
+	LuaObject<PropertiedObject>::RegisterClass();
+
+	LuaObject<Body>::RegisterClass();
+	LuaObject<Ship>::RegisterClass();
+	LuaObject<SpaceStation>::RegisterClass();
+	LuaObject<Planet>::RegisterClass();
+	LuaObject<Star>::RegisterClass();
+	LuaObject<Player>::RegisterClass();
+	LuaObject<ModelBody>::RegisterClass();
+
+	LuaObject<StarSystem>::RegisterClass();
+	LuaObject<SystemPath>::RegisterClass();
+	LuaObject<SystemBody>::RegisterClass();
+	LuaObject<Random>::RegisterClass();
+	LuaObject<Faction>::RegisterClass();
+
+	Pi::luaSerializer = new LuaSerializer();
+	Pi::luaTimer = new LuaTimer();
+
+	LuaObject<LuaSerializer>::RegisterClass();
+	LuaObject<LuaTimer>::RegisterClass();
+
+	LuaConstants::Register(Lua::manager->GetLuaState());
+	LuaLang::Register();
+	LuaEngine::Register();
+	LuaEquipDef::Register();
+	LuaFileSystem::Register();
+	LuaGame::Register();
+	LuaComms::Register();
+	LuaFormat::Register();
+	LuaSpace::Register();
+	LuaShipDef::Register();
+	LuaDev::Register();
+	LuaConsole::Register();
+
+	// XXX sigh
+	UI::Lua::Init();
+	GameUI::Lua::Init();
+	SceneGraph::Lua::Init();
+
+	// XXX load everything. for now, just modules
+	lua_State *l = Lua::manager->GetLuaState();
+	pi_lua_dofile(l, "libs/autoload.lua");
+	pi_lua_dofile_recursive(l, "ui");
+	pi_lua_dofile_recursive(l, "modules");
+
+	Pi::luaNameGen = new LuaNameGen(Lua::manager);
+}
+
+static void LuaUninit() {
+	delete Pi::luaNameGen;
+
+	delete Pi::luaSerializer;
+	delete Pi::luaTimer;
+
+	Lua::Uninit();
+}
+
+static void LuaInitGame() {
+	LuaEvent::Clear();
+}
+
+SceneGraph::Model *Pi::FindModel(const std::string &name, bool allowPlaceholder)
+{
+	SceneGraph::Model *m = 0;
+	try {
+		m = Pi::modelCache->FindModel(name);
+	} catch (ModelCache::ModelNotFoundException) {
+		Output("Could not find model: %s\n", name.c_str());
+		if (allowPlaceholder) {
+			try {
+				m = Pi::modelCache->FindModel("error");
+			} catch (ModelCache::ModelNotFoundException) {
+				Error("Could not find placeholder model");
+			}
+		}
+	}
+
+	return m;
+}
+
+const char Pi::SAVE_DIR_NAME[] = "savefiles";
+
+std::string Pi::GetSaveDir()
+{
+	return FileSystem::JoinPath(FileSystem::GetUserDir(), Pi::SAVE_DIR_NAME);
+}
+
+void Pi::Init(const std::map<std::string,std::string> &options)
+{
+#ifdef PIONEER_PROFILER
+	Profiler::reset();
+#endif
+
+	OS::NotifyLoadBegin();
+
+	FileSystem::Init();
+	FileSystem::userFiles.MakeDirectory(""); // ensure the config directory exists
+#ifdef PIONEER_PROFILER
+	FileSystem::userFiles.MakeDirectory("profiler");
+	profilerPath = FileSystem::JoinPathBelow(FileSystem::userFiles.GetRoot(), "profiler");
+#endif
+
+	Pi::config = new GameConfig(options);
+	KeyBindings::InitBindings();
+
+	if (config->Int("RedirectStdio"))
+		OS::RedirectStdio();
+
+	ModManager::Init();
+
+	Lang::Resource res(Lang::GetResource("core", config->String("Lang")));
+	Lang::MakeCore(res);
+
+	Pi::detail.planets = config->Int("DetailPlanets");
+	Pi::detail.textures = config->Int("Textures");
+	Pi::detail.fracmult = config->Int("FractalMultiple");
+	Pi::detail.cities = config->Int("DetailCities");
+
+	// Initialize SDL
+	Uint32 sdlInitFlags = SDL_INIT_VIDEO | SDL_INIT_JOYSTICK;
+#if defined(DEBUG) || defined(_DEBUG)
+	sdlInitFlags |= SDL_INIT_NOPARACHUTE;
+#endif
+	if (SDL_Init(sdlInitFlags) < 0) {
+		Error("SDL initialization failed: %s\n", SDL_GetError());
+	}
+
+	// Do rest of SDL video initialization and create Renderer
+	Graphics::Settings videoSettings = {};
+	videoSettings.width = config->Int("ScrWidth");
+	videoSettings.height = config->Int("ScrHeight");
+	videoSettings.fullscreen = (config->Int("StartFullscreen") != 0);
+	videoSettings.requestedSamples = config->Int("AntiAliasingMode");
+	videoSettings.vsync = (config->Int("VSync") != 0);
+	videoSettings.useTextureCompression = (config->Int("UseTextureCompression") != 0);
+	videoSettings.enableDebugMessages = (config->Int("EnableGLDebug") != 0);
+	videoSettings.iconFile = OS::GetIconFilename();
+	videoSettings.title = "Pioneer";
+
+	Pi::renderer = Graphics::Init(videoSettings);
+	{
+		std::ostringstream buf;
+		renderer->PrintDebugInfo(buf);
+
+		FILE *f = FileSystem::userFiles.OpenWriteStream("opengl.txt", FileSystem::FileSourceFS::WRITE_TEXT);
+		if (!f)
+			Output("Could not open 'opengl.txt'\n");
+		const std::string &s = buf.str();
+		fwrite(s.c_str(), 1, s.size(), f);
+		fclose(f);
+	}
+
+	Pi::rng.IncRefCount(); // so nothing tries to free it
+	Pi::rng.seed(time(0));
+
+	InitJoysticks();
+	joystickEnabled = (config->Int("EnableJoystick")) ? true : false;
+	mouseYInvert = (config->Int("InvertMouseY")) ? true : false;
+
+	EnumStrings::Init();
+
+	// get threads up
+	Uint32 numThreads = config->Int("WorkerThreads");
+	const int numCores = OS::GetNumCores();
+	assert(numCores > 0);
+	if (numThreads == 0) numThreads = std::max(Uint32(numCores) - 1, 1U);
+	jobQueue.reset(new JobQueue(numThreads));
+	Output("started %d worker threads\n", numThreads);
+
+	// XXX early, Lua init needs it
+	ShipType::Init();
+
+	// XXX UI requires Lua  but Pi::ui must exist before we start loading
+	// templates. so now we have crap everywhere :/
+	Lua::Init();
+
+	Pi::ui.Reset(new UI::Context(Lua::manager, Pi::renderer, Graphics::GetScreenWidth(), Graphics::GetScreenHeight(), Lang::GetCore().GetLangCode()));
+
+	LuaInit();
+
+	// Gui::Init shouldn't initialise any VBOs, since we haven't tested
+	// that the capability exists. (Gui does not use VBOs so far)
+	Gui::Init(renderer, Graphics::GetScreenWidth(), Graphics::GetScreenHeight(), 800, 600);
+
+	UI::Box *box = Pi::ui->VBox(5);
+	UI::Label *label = Pi::ui->Label("");
+	label->SetFont(UI::Widget::FONT_HEADING_NORMAL);
+	UI::Gauge *gauge = Pi::ui->Gauge();
+	Pi::ui->GetTopLayer()->SetInnerWidget(
+		Pi::ui->Margin(10, UI::Margin::HORIZONTAL)->SetInnerWidget(
+			Pi::ui->Expand()->SetInnerWidget(
+				Pi::ui->Align(UI::Align::MIDDLE)->SetInnerWidget(
+					box->PackEnd(UI::WidgetSet(
+						label,
+						gauge
+					))
+				)
+			)
+		)
+    );
+
+	draw_progress(gauge, label, 0.1f);
+
+	Galaxy::Init();
+	draw_progress(gauge, label, 0.2f);
+
+	Faction::Init();
+	draw_progress(gauge, label, 0.3f);
+
+	CustomSystem::Init();
+	draw_progress(gauge, label, 0.4f);
+
+	// Reload home sector, they might have changed, due to custom systems
+	// Sectors might be changed in game, so have to re-create them again once we have a Game.
+	Faction::SetHomeSectors();
+	draw_progress(gauge, label, 0.45f);
+
+	modelCache = new ModelCache(Pi::renderer);
+	draw_progress(gauge, label, 0.5f);
+
+//unsigned int control_word;
+//_clearfp();
+//_controlfp_s(&control_word, _EM_INEXACT | _EM_UNDERFLOW | _EM_ZERODIVIDE, _MCW_EM);
+//double fpexcept = Pi::timeAccelRates[1] / Pi::timeAccelRates[0];
+
+	draw_progress(gauge, label, 0.6f);
+
+	GeoSphere::Init();
+	draw_progress(gauge, label, 0.7f);
+
+	CityOnPlanet::Init();
+	draw_progress(gauge, label, 0.8f);
+
+	SpaceStation::Init();
+	draw_progress(gauge, label, 0.9f);
+
+	if (!config->Int("DisableSound")) {
+		Sound::Init();
+		Sound::SetMasterVolume(config->Float("MasterVolume"));
+		Sound::SetSfxVolume(config->Float("SfxVolume"));
+
+		Sound::Pause(0);
+		if (config->Int("MasterMuted")) Sound::Pause(1);
+		if (config->Int("SfxMuted")) Sound::SetSfxVolume(0.f);
+	}
+	draw_progress(gauge, label, 1.0f);
+
+	OS::NotifyLoadEnd();
+
+	luaConsole = new LuaConsole();
+	KeyBindings::toggleLuaConsole.onPress.connect(sigc::mem_fun(Pi::luaConsole, &LuaConsole::Toggle));
+}
+
+bool Pi::IsConsoleActive()
+{
+	return luaConsole && luaConsole->IsActive();
+}
+
+void Pi::Quit()
+{
+	delete Pi::intro;
+	delete Pi::luaConsole;
+	Sound::Uninit();
+	SpaceStation::Uninit();
+	CityOnPlanet::Uninit();
+	GeoSphere::Uninit();
+	Galaxy::Uninit();
+	Faction::Uninit();
+	CustomSystem::Uninit();
+	Graphics::Uninit();
+	Pi::ui.Reset(0);
+	LuaUninit();
+	Gui::Uninit();
+	delete Pi::modelCache;
+	delete Pi::renderer;
+	delete Pi::config;
+	StarSystemCache::ShrinkCache(SystemPath(), true);
+	SDL_Quit();
+	FileSystem::Uninit();
+	jobQueue.reset();
+	exit(0);
+}
+
+void Pi::FlushCaches()
+{
+	StarSystemCache::ShrinkCache(SystemPath(), true);
+	Sector::cache.ClearCache();
+	// XXX Ideally the cache would now be empty, but we still have Faction::m_homesector :(
+	// assert(Sector::cache.IsEmpty());
+}
+
+void Pi::BoinkNoise()
+{
+	Sound::PlaySfx("Click", 0.3f, 0.3f, false);
+}
+
+void Pi::SetView(View *v)
+{
+	if (currentView) currentView->Detach();
+	currentView = v;
+	if (currentView) currentView->Attach();
+}
+
+void Pi::OnChangeDetailLevel()
+{
+	GeoSphere::OnChangeDetailLevel();
+}
+
+void Pi::HandleEvents()
+{
+	PROFILE_SCOPED()
+	SDL_Event event;
+
+	// XXX for most keypresses SDL will generate KEYUP/KEYDOWN and TEXTINPUT
+	// events. keybindings run off KEYUP/KEYDOWN. the console is opened/closed
+	// via keybinding. the console TextInput widget uses TEXTINPUT events. thus
+	// after switching the console, the stray TEXTINPUT event causes the
+	// console key (backtick) to appear in the text entry field. we hack around
+	// this by setting this flag if the console was switched. if its set, we
+	// swallow the TEXTINPUT event this hack must remain until we have a
+	// unified input system
+	bool skipTextInput = false;
+
+	Pi::mouseMotion[0] = Pi::mouseMotion[1] = 0;
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT) {
+			if (Pi::game)
+				Pi::EndGame();
+			Pi::Quit();
+		}
+
+		if (skipTextInput && event.type == SDL_TEXTINPUT) {
+			skipTextInput = false;
+			continue;
+		}
+		if (ui->DispatchSDLEvent(event))
+			continue;
+
+		bool consoleActive = Pi::IsConsoleActive();
+		if (!consoleActive)
+			KeyBindings::DispatchSDLEvent(&event);
+		else
+			KeyBindings::toggleLuaConsole.CheckSDLEventAndDispatch(&event);
+		if (consoleActive != Pi::IsConsoleActive()) {
+			skipTextInput = true;
+			continue;
+		}
+
+		if (Pi::IsConsoleActive())
+			continue;
+
+		Gui::HandleSDLEvent(&event);
+
+		switch (event.type) {
+			case SDL_KEYDOWN:
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					if (Pi::game) {
+						// only accessible once game started
+						if (currentView != 0) {
+							if (currentView != settingsView) {
+								Pi::game->SetTimeAccel(Game::TIMEACCEL_PAUSED);
+								SetView(settingsView);
+							}
+							else {
+								Pi::game->RequestTimeAccel(Game::TIMEACCEL_1X);
+								SetView(Pi::player->IsDead()
+										? static_cast<View*>(deathView)
+										: static_cast<View*>(worldView));
+							}
+						}
+					}
+					break;
+				}
+				// special keys. LCTRL+turd
+				if ((KeyState(SDLK_LCTRL) || (KeyState(SDLK_RCTRL)))) {
+					switch (event.key.keysym.sym) {
+						case SDLK_q: // Quit
+							if (Pi::game)
+								Pi::EndGame();
+							Pi::Quit();
+							break;
+						case SDLK_PRINTSCREEN: // print
+						case SDLK_KP_MULTIPLY: // screen
+						{
+							char buf[256];
+							const time_t t = time(0);
+							struct tm *_tm = localtime(&t);
+							strftime(buf, sizeof(buf), "screenshot-%Y%m%d-%H%M%S.png", _tm);
+							Screendump(buf, Graphics::GetScreenWidth(), Graphics::GetScreenHeight());
+							break;
+						}
+#if WITH_DEVKEYS
+						case SDLK_i: // Toggle Debug info
+							Pi::showDebugInfo = !Pi::showDebugInfo;
+							break;
+
+#ifdef PIONEER_PROFILER
+						case SDLK_p: // alert it that we want to profile
+							if (KeyState(SDLK_LSHIFT) || KeyState(SDLK_RSHIFT))
+								Pi::doProfileOne = true;
+							else {
+								Pi::doProfileSlow = !Pi::doProfileSlow;
+								Output("slow frame profiling %s\n", Pi::doProfileSlow ? "enabled" : "disabled");
+							}
+							break;
+#endif
+
+						case SDLK_F12:
+						{
+							if(Pi::game) {
+								vector3d dir = -Pi::player->GetOrient().VectorZ();
+								/* add test object */
+								if (KeyState(SDLK_LSHIFT)) {
+									SpaceStation *s = static_cast<SpaceStation*>(Pi::player->GetNavTarget());
+									if (s) {
+										Ship *ship = new Ship(ShipType::POLICE);
+										int port = s->GetFreeDockingPort(ship);
+										if (port != -1) {
+											Output("Putting ship into station\n");
+											// Make police ship intent on killing the player
+											ship->AIKill(Pi::player);
+											ship->SetFrame(Pi::player->GetFrame());
+											ship->SetDockedWith(s, port);
+											game->GetSpace()->AddBody(ship);
+										} else {
+											delete ship;
+											Output("No docking ports free dude\n");
+										}
+									} else {
+											Output("Select a space station...\n");
+									}
+								} else {
+									Ship *ship = new Ship(ShipType::POLICE);
+									if( KeyState(SDLK_LCTRL) )
+										ship->AIFlyTo(Pi::player);	// a less lethal option
+									else
+										ship->AIKill(Pi::player);	// a really lethal option!
+									ship->m_equipment.Set(Equip::SLOT_LASER, 0, Equip::PULSECANNON_DUAL_1MW);
+									ship->m_equipment.Add(Equip::LASER_COOLING_BOOSTER);
+									ship->m_equipment.Add(Equip::ATMOSPHERIC_SHIELDING);
+									ship->SetFrame(Pi::player->GetFrame());
+									ship->SetPosition(Pi::player->GetPosition()+100.0*dir);
+									ship->SetVelocity(Pi::player->GetVelocity());
+									ship->UpdateStats();
+									game->GetSpace()->AddBody(ship);
+								}
+							}
+							break;
+						}
+#endif /* DEVKEYS */
+						case SDLK_F11:
+							// XXX only works on X11
+							//SDL_WM_ToggleFullScreen(Pi::scrSurface);
+#if WITH_DEVKEYS
+							renderer->ReloadShaders();
+#endif
+							break;
+						default:
+							break; // This does nothing but it stops the compiler warnings
+					}
+				}
+				Pi::keyState[event.key.keysym.sym] = true;
+				Pi::keyModState = event.key.keysym.mod;
+				Pi::onKeyPress.emit(&event.key.keysym);
+				break;
+			case SDL_KEYUP:
+				Pi::keyState[event.key.keysym.sym] = false;
+				Pi::keyModState = event.key.keysym.mod;
+				Pi::onKeyRelease.emit(&event.key.keysym);
+				break;
+			case SDL_MOUSEBUTTONDOWN:
+				if (event.button.button < COUNTOF(Pi::mouseButton)) {
+					Pi::mouseButton[event.button.button] = 1;
+					Pi::onMouseButtonDown.emit(event.button.button,
+							event.button.x, event.button.y);
+				}
+				break;
+			case SDL_MOUSEBUTTONUP:
+				if (event.button.button < COUNTOF(Pi::mouseButton)) {
+					Pi::mouseButton[event.button.button] = 0;
+					Pi::onMouseButtonUp.emit(event.button.button,
+							event.button.x, event.button.y);
+				}
+				break;
+			case SDL_MOUSEWHEEL:
+				Pi::onMouseWheel.emit(event.wheel.y > 0); // true = up
+				break;
+			case SDL_MOUSEMOTION:
+				Pi::mouseMotion[0] += event.motion.xrel;
+				Pi::mouseMotion[1] += event.motion.yrel;
+		//		SDL_GetRelativeMouseState(&Pi::mouseMotion[0], &Pi::mouseMotion[1]);
+				break;
+			case SDL_JOYAXISMOTION:
+				if (!joysticks[event.jaxis.which].joystick)
+					break;
+				if (event.jaxis.value == -32768)
+					joysticks[event.jaxis.which].axes[event.jaxis.axis] = 1.f;
+				else
+					joysticks[event.jaxis.which].axes[event.jaxis.axis] = -event.jaxis.value / 32767.f;
+				break;
+			case SDL_JOYBUTTONUP:
+			case SDL_JOYBUTTONDOWN:
+				if (!joysticks[event.jaxis.which].joystick)
+					break;
+				joysticks[event.jbutton.which].buttons[event.jbutton.button] = event.jbutton.state != 0;
+				break;
+			case SDL_JOYHATMOTION:
+				if (!joysticks[event.jaxis.which].joystick)
+					break;
+				joysticks[event.jhat.which].hats[event.jhat.hat] = event.jhat.value;
+				break;
+		}
+	}
+}
+
+void Pi::InitGame()
+{
+	// this is a bit brittle. skank may be forgotten and survive between
+	// games
+
+	//reset input states
+	keyState.clear();
+	keyModState = 0;
+	std::fill(mouseButton, mouseButton + COUNTOF(mouseButton), 0);
+	std::fill(mouseMotion, mouseMotion + COUNTOF(mouseMotion), 0);
+	for (std::map<SDL_JoystickID,JoystickState>::iterator stick = joysticks.begin(); stick != joysticks.end(); ++stick) {
+		JoystickState &state = stick->second;
+		std::fill(state.buttons.begin(), state.buttons.end(), false);
+		std::fill(state.hats.begin(), state.hats.end(), 0);
+		std::fill(state.axes.begin(), state.axes.end(), 0.f);
+	}
+
+	LuaInitGame();
+}
+
+static void OnPlayerDockOrUndock()
+{
+	Pi::game->RequestTimeAccel(Game::TIMEACCEL_1X);
+	Pi::game->SetTimeAccel(Game::TIMEACCEL_1X);
+}
+
+static void OnPlayerChangeEquipment(Equip::Type e)
+{
+	Pi::onPlayerChangeEquipment.emit();
+}
+
+void Pi::StartGame()
+{
+	Pi::player->onDock.connect(sigc::ptr_fun(&OnPlayerDockOrUndock));
+	Pi::player->onUndock.connect(sigc::ptr_fun(&OnPlayerDockOrUndock));
+	Pi::player->m_equipment.onChange.connect(sigc::ptr_fun(&OnPlayerChangeEquipment));
+	cpan->ShowAll();
+	DrawGUI = true;
+	OnPlayerChangeEquipment(Equip::NONE);
+	SetView(worldView);
+
+	// fire event before the first frame
+	LuaEvent::Queue("onGameStart");
+	LuaEvent::Emit();
+}
+
+void Pi::Start()
+{
+	Pi::intro = new Intro(Pi::renderer, Graphics::GetScreenWidth(), Graphics::GetScreenHeight());
+
+	ui->DropAllLayers();
+	ui->GetTopLayer()->SetInnerWidget(ui->CallTemplate("MainMenu"));
+
+	//XXX global ambient colour hack to make explicit the old default ambient colour dependency
+	// for some models
+	Pi::renderer->SetAmbientColor(Color(51, 51, 51, 255));
+
+	ui->Layout();
+
+	Uint32 last_time = SDL_GetTicks();
+	float _time = 0;
+
+	while (!Pi::game) {
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT)
+				Pi::Quit();
+			else
+				ui->DispatchSDLEvent(event);
+
+			// XXX hack
+			// if we hit our exit conditions then ignore further queued events
+			// protects against eg double-click during game generation
+			if (Pi::game)
+				while (SDL_PollEvent(&event)) {}
+		}
+
+		Pi::renderer->BeginFrame();
+		intro->Draw(_time);
+		Pi::renderer->EndFrame();
+
+		ui->Update();
+		ui->Draw();
+
+		Pi::renderer->SwapBuffers();
+
+		Pi::frameTime = 0.001f*(SDL_GetTicks() - last_time);
+		_time += Pi::frameTime;
+		last_time = SDL_GetTicks();
+	}
+
+	ui->DropAllLayers();
+	ui->Layout(); // UI does important things on layout, like updating keyboard shortcuts
+
+	delete Pi::intro; Pi::intro = 0;
+
+	InitGame();
+	StartGame();
+	MainLoop();
+}
+
+void Pi::EndGame()
+{
+	Pi::SetMouseGrab(false);
+	Sound::DestroyAllEvents();
+
+	// final event
+	LuaEvent::Queue("onGameEnd");
+	LuaEvent::Emit();
+
+	luaTimer->RemoveAll();
+
+	Lua::manager->CollectGarbage();
+
+	Sound::DestroyAllEvents();
+
+	assert(game);
+	delete game;
+	game = 0;
+	player = 0;
+
+	FlushCaches();
+	//Faction::SetHomeSectors(); // We might need them to start a new game
+}
+
+void Pi::MainLoop()
+{
+	double time_player_died = 0;
+
+#if WITH_DEVKEYS
+	Uint32 last_stats = SDL_GetTicks();
+	int frame_stat = 0;
+	int phys_stat = 0;
+	char fps_readout[256];
+	memset(fps_readout, 0, sizeof(fps_readout));
+#endif
+
+	int MAX_PHYSICS_TICKS = Pi::config->Int("MaxPhysicsCyclesPerRender");
+	if (MAX_PHYSICS_TICKS <= 0)
+		MAX_PHYSICS_TICKS = 4;
+
+	double currentTime = 0.001 * double(SDL_GetTicks());
+	double accumulator = Pi::game->GetTimeStep();
+	Pi::gameTickAlpha = 0;
+
+	while (Pi::game) {
+		PROFILE_SCOPED()
+
+#ifdef PIONEER_PROFILER
+		Profiler::reset();
+#endif
+
+		const Uint32 newTicks = SDL_GetTicks();
+		double newTime = 0.001 * double(newTicks);
+		Pi::frameTime = newTime - currentTime;
+		if (Pi::frameTime > 0.25) Pi::frameTime = 0.25;
+		currentTime = newTime;
+		accumulator += Pi::frameTime * Pi::game->GetTimeAccelRate();
+
+		const float step = Pi::game->GetTimeStep();
+		if (step > 0.0f) {
+			PROFILE_SCOPED_RAW("unpaused")
+			int phys_ticks = 0;
+			while (accumulator >= step) {
+				if (++phys_ticks >= MAX_PHYSICS_TICKS) {
+					accumulator = 0.0;
+					break;
+				}
+				game->TimeStep(step);
+				GeoSphere::UpdateAllGeoSpheres();
+
+				accumulator -= step;
+			}
+			// rendering interpolation between frames: don't use when docked
+			int pstate = Pi::game->GetPlayer()->GetFlightState();
+			if (pstate == Ship::DOCKED || pstate == Ship::DOCKING) Pi::gameTickAlpha = 1.0;
+			else Pi::gameTickAlpha = accumulator / step;
+
+#if WITH_DEVKEYS
+			phys_stat += phys_ticks;
+#endif
+		} else {
+			// paused
+			PROFILE_SCOPED_RAW("paused")
+			GeoSphere::UpdateAllGeoSpheres();
+		}
+		frame_stat++;
+
+		// fuckadoodledoo, did the player die?
+		if (Pi::player->IsDead()) {
+			if (time_player_died > 0.0) {
+				if (Pi::game->GetTime() - time_player_died > 8.0) {
+					Pi::SetView(0);
+					Pi::EndGame();
+					break;
+				}
+			} else {
+				Pi::game->SetTimeAccel(Game::TIMEACCEL_1X);
+				Pi::deathView->Init();
+				Pi::SetView(Pi::deathView);
+				time_player_died = Pi::game->GetTime();
+			}
+		}
+
+		Pi::renderer->BeginFrame();
+		Pi::renderer->SetTransform(matrix4x4f::Identity());
+
+		/* Calculate position for this rendered frame (interpolated between two physics ticks */
+        // XXX should this be here? what is this anyway?
+		for (Body* b : game->GetSpace()->GetBodies()) {
+			b->UpdateInterpTransform(Pi::GetGameTickAlpha());
+		}
+		game->GetSpace()->GetRootFrame()->UpdateInterpTransform(Pi::GetGameTickAlpha());
+
+		currentView->Update();
+		currentView->Draw3D();
+		// XXX HandleEvents at the moment must be after view->Draw3D and before
+		// Gui::Draw so that labels drawn to screen can have mouse events correctly
+		// detected. Gui::Draw wipes memory of label positions.
+		Pi::HandleEvents();
+		// hide cursor for ship control.
+
+		SetMouseGrab(Pi::MouseButtonState(SDL_BUTTON_RIGHT));
+
+		Pi::renderer->EndFrame();
+		if( DrawGUI ) {
+			Gui::Draw();
+		} else if (game && game->IsNormalSpace()) {
+			if (config->Int("DisableScreenshotInfo")==0) {
+				const RefCountedPtr<StarSystem> sys = game->GetSpace()->GetStarSystem();
+				const SystemPath sp = sys->GetPath();
+				std::ostringstream pathStr;
+
+				// fill in pathStr from sp values and sys->GetName()
+				static const std::string comma(", ");
+				pathStr << Pi::player->GetFrame()->GetLabel() << comma << sys->GetName() << " (" << sp.sectorX << comma << sp.sectorY << comma << sp.sectorZ << ")";
+
+				// display pathStr
+				Gui::Screen::EnterOrtho();
+				Gui::Screen::PushFont("ConsoleFont");
+				Gui::Screen::RenderString(pathStr.str(), 0, 0);
+				Gui::Screen::PopFont();
+				Gui::Screen::LeaveOrtho();
+			}
+		}
+
+		// XXX don't draw the UI during death obviously a hack, and still
+		// wrong, because we shouldn't this when the HUD is disabled, but
+		// probably sure draw it if they switch to eg infoview while the HUD is
+		// disabled so we need much smarter control for all this rubbish
+		if (Pi::GetView() != Pi::deathView) {
+			Pi::ui->Update();
+			Pi::ui->Draw();
+		}
+
+#if WITH_DEVKEYS
+		if (Pi::showDebugInfo) {
+			Gui::Screen::EnterOrtho();
+			Gui::Screen::PushFont("ConsoleFont");
+			Gui::Screen::RenderString(fps_readout, 0, 0);
+			Gui::Screen::PopFont();
+			Gui::Screen::LeaveOrtho();
+		}
+#endif
+		Pi::renderer->SwapBuffers();
+
+		// game exit will have cleared Pi::game. we can't continue.
+		if (!Pi::game)
+			return;
+
+		if (Pi::game->UpdateTimeAccel())
+			accumulator = 0; // fix for huge pauses 10000x -> 1x
+
+		if (!Pi::player->IsDead()) {
+			// XXX should this really be limited to while the player is alive?
+			// this is something we need not do every turn...
+			if( !Pi::game->IsHyperspace() ) {
+				StarSystemCache::ShrinkCache( Pi::game->GetSpace()->GetStarSystem()->GetPath() );
+			}
+		}
+		cpan->Update();
+
+		jobQueue->FinishJobs();
+
+#if WITH_DEVKEYS
+		if (Pi::showDebugInfo && SDL_GetTicks() - last_stats > 1000) {
+			size_t lua_mem = Lua::manager->GetMemoryUsage();
+			int lua_memB = int(lua_mem & ((1u << 10) - 1));
+			int lua_memKB = int(lua_mem >> 10) % 1024;
+			int lua_memMB = int(lua_mem >> 20);
+
+			snprintf(
+				fps_readout, sizeof(fps_readout),
+				"%d fps (%.1f ms/f), %d phys updates, %d triangles, %.3f M tris/sec, %d terrain vtx/sec, %d glyphs/sec\n"
+				"Lua mem usage: %d MB + %d KB + %d bytes",
+				frame_stat, (1000.0/frame_stat), phys_stat, Pi::statSceneTris, Pi::statSceneTris*frame_stat*1e-6,
+				GeoSphere::GetVtxGenCount(), Text::TextureFont::GetGlyphCount(),
+				lua_memMB, lua_memKB, lua_memB
+			);
+			frame_stat = 0;
+			phys_stat = 0;
+			Text::TextureFont::ClearGlyphCount();
+			GeoSphere::ClearVtxGenCount();
+			if (SDL_GetTicks() - last_stats > 1200) last_stats = SDL_GetTicks();
+			else last_stats += 1000;
+		}
+		Pi::statSceneTris = 0;
+
+#ifdef PIONEER_PROFILER
+		const Uint32 profTicks = SDL_GetTicks();
+		if (Pi::doProfileOne || (Pi::doProfileSlow && (profTicks-newTicks) > 100)) { // slow: < ~10fps
+			Output("dumping profile data\n");
+			Profiler::dumphtml(profilerPath.c_str());
+			Pi::doProfileOne = false;
+		}
+#endif
+
+#endif
+	}
+}
+
+float Pi::CalcHyperspaceRangeMax(int hyperclass, int total_mass_in_tonnes)
+{
+	// 625.0f is balancing parameter
+	return 625.0f * hyperclass * hyperclass / (total_mass_in_tonnes);
+}
+
+float Pi::CalcHyperspaceRange(int hyperclass, float total_mass_in_tonnes, int fuel)
+{
+	const float range_max = CalcHyperspaceRangeMax(hyperclass, total_mass_in_tonnes);
+	int fuel_required_max = CalcHyperspaceFuelOut(hyperclass, range_max, range_max);
+
+	if(fuel_required_max <= fuel)
+		return range_max;
+	else {
+		// range is proportional to fuel - use this as first guess
+		float range = range_max*fuel/fuel_required_max;
+
+		// if the range is too big due to rounding error, lower it until is is OK.
+		while(range > 0 && CalcHyperspaceFuelOut(hyperclass, range, range_max) > fuel)
+			range -= 0.05;
+
+		// range is never negative
+		range = std::max(range, 0.0f);
+		return range;
+	}
+}
+
+float Pi::CalcHyperspaceDuration(int hyperclass, int total_mass_in_tonnes, float dist)
+{
+	float hyperspace_range_max = CalcHyperspaceRangeMax(hyperclass, total_mass_in_tonnes);
+
+	// 0.36 is balancing parameter
+	return ((dist * dist * 0.36) / (hyperspace_range_max * hyperclass)) *
+			(60.0 * 60.0 * 24.0 * sqrtf(total_mass_in_tonnes));
+}
+
+float Pi::CalcHyperspaceFuelOut(int hyperclass, float dist, float hyperspace_range_max)
+{
+	int outFuelRequired = int(ceil(hyperclass*hyperclass*dist / hyperspace_range_max));
+	if (outFuelRequired > hyperclass*hyperclass) outFuelRequired = hyperclass*hyperclass;
+	if (outFuelRequired < 1) outFuelRequired = 1;
+
+	return outFuelRequired;
+}
+
+void Pi::InitJoysticks() {
+	int joy_count = SDL_NumJoysticks();
+	for (int n = 0; n < joy_count; n++) {
+		JoystickState state;
+
+		state.joystick = SDL_JoystickOpen(n);
+		if (!state.joystick) {
+			Output("SDL_JoystickOpen(%i): %s\n", n, SDL_GetError());
+			continue;
+		}
+		state.axes.resize(SDL_JoystickNumAxes(state.joystick));
+		state.buttons.resize(SDL_JoystickNumButtons(state.joystick));
+		state.hats.resize(SDL_JoystickNumHats(state.joystick));
+
+		SDL_JoystickID joyID = SDL_JoystickInstanceID(state.joystick);
+		joysticks[joyID] = state;
+	}
+}
+
+int Pi::JoystickButtonState(int joystick, int button) {
+	if (!joystickEnabled) return 0;
+	if (joystick < 0 || joystick >= int(joysticks.size()))
+		return 0;
+
+	if (button < 0 || button >= int(joysticks[joystick].buttons.size()))
+		return 0;
+
+	return joysticks[joystick].buttons[button];
+}
+
+int Pi::JoystickHatState(int joystick, int hat) {
+	if (!joystickEnabled) return 0;
+	if (joystick < 0 || joystick >= int(joysticks.size()))
+		return 0;
+
+	if (hat < 0 || hat >= int(joysticks[joystick].hats.size()))
+		return 0;
+
+	return joysticks[joystick].hats[hat];
+}
+
+float Pi::JoystickAxisState(int joystick, int axis) {
+	if (!joystickEnabled) return 0;
+	if (joystick < 0 || joystick >= int(joysticks.size()))
+		return 0;
+
+	if (axis < 0 || axis >= int(joysticks[joystick].axes.size()))
+		return 0;
+
+	return joysticks[joystick].axes[axis];
+}
+
+void Pi::SetMouseGrab(bool on)
+{
+	if (!doingMouseGrab && on) {
+		SDL_ShowCursor(0);
+		Pi::renderer->GetWindow()->SetGrab(true);
+		doingMouseGrab = true;
+	}
+	else if(doingMouseGrab && !on) {
+		SDL_ShowCursor(1);
+		Pi::renderer->GetWindow()->SetGrab(false);
+		doingMouseGrab = false;
+	}
+}
+
+float Pi::GetMoveSpeedShiftModifier() {
+	// Suggestion: make x1000 speed on pressing both keys?
+	if (Pi::KeyState(SDLK_LSHIFT)) return 100.f;
+	if (Pi::KeyState(SDLK_RSHIFT)) return 10.f;
+	return 1;
+}
