@@ -10,7 +10,7 @@
 namespace Graphics {
 
 bool WindowSDL::CreateWindowAndContext(const char *name, int w, int h, bool fullscreen, int samples, int depth_bits) {
-	Uint32 winFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+	Uint32 winFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 	if (fullscreen) winFlags |= SDL_WINDOW_FULLSCREEN;
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth_bits);
@@ -25,7 +25,7 @@ bool WindowSDL::CreateWindowAndContext(const char *name, int w, int h, bool full
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	//SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
 	m_window = SDL_CreateWindow(name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, winFlags);
 	if (!m_window)

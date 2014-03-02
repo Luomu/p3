@@ -6,6 +6,7 @@
 #include "ModelViewer.h"
 #include "utils.h"
 #include <cstdio>
+#include "p3/Game.h"
 
 enum RunMode {
 	MODE_GAME,
@@ -75,8 +76,12 @@ start:
 					options[key] = val;
 				}
 			}
-			Pi::Init(options);
-			for (;;) Pi::Start();
+			std::unique_ptr<p3::Game> game(new p3::Game());
+			game->Init(options);
+			game->Run();
+			game->Uninit();
+			//Pi::Init(options);
+			//for (;;) Pi::Start();
 			break;
 		}
 

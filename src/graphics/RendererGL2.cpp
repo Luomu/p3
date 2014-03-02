@@ -64,7 +64,7 @@ RendererGL2::RendererGL2(WindowSDL *window, const Graphics::Settings &vs)
 	m_modelViewStack.push(matrix4x4f::Identity());
 	m_projectionStack.push(matrix4x4f::Identity());
 
-	SetClearColor(Color(0.f));
+	SetClearColor(Color(0));
 	SetViewport(0, 0, m_width, m_height);
 
 	if (vs.enableDebugMessages)
@@ -95,8 +95,6 @@ bool RendererGL2::GetNearFarRange(float &near, float &far) const
 bool RendererGL2::BeginFrame()
 {
 	PROFILE_SCOPED()
-	glClearColor(0,0,0,0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	return true;
 }
 
@@ -194,7 +192,7 @@ bool RendererGL2::ClearDepthBuffer()
 
 bool RendererGL2::SetClearColor(const Color &c)
 {
-	glClearColor(c.r, c.g, c.b, c.a);
+	glClearColor(c.r/255.f, c.g/255.f, c.b/255.f, c.a/255.f);
 	return true;
 }
 

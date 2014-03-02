@@ -354,11 +354,6 @@ void Pi::Init(const std::map<std::string,std::string> &options)
 	modelCache = new ModelCache(Pi::renderer);
 	draw_progress(gauge, label, 0.5f);
 
-//unsigned int control_word;
-//_clearfp();
-//_controlfp_s(&control_word, _EM_INEXACT | _EM_UNDERFLOW | _EM_ZERODIVIDE, _MCW_EM);
-//double fpexcept = Pi::timeAccelRates[1] / Pi::timeAccelRates[0];
-
 	draw_progress(gauge, label, 0.6f);
 
 	GeoSphere::Init();

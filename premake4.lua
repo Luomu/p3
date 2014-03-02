@@ -136,15 +136,16 @@ solution "P3"
 	project "p3"
 		kind "ConsoleApp"
 		files {
-			SRCDIR .. "*.cpp",
-			SRCDIR .. "*.h"
+			SRCDIR .. "main.cpp",
+			SRCDIR .. "p3/*.cpp",
+			SRCDIR .. "p3/*.h"
 		}
 		if _OPTIONS["noconsole"] ~= nil then
 			linkoptions "-mwindows"
 		end
 		linkoptions "-lpi" --listed twice due to dependency mess
-		links { "galaxy", "terrain", "gameui", "collider", "gui",
-			"scenegraph", "text", "ui", "graphics", "win32",
+		links { "galaxy", "terrain", "gameui",
+			"scenegraph", "collider", "ui", "gui", "text", "graphics", "win32",
 			"jenkins", "json", "lua", "entityx", "pi"
 		}
 		links { "mingw32", "SDL2main", "SDL2", "SDL2_Image", "png",
