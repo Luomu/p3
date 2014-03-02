@@ -18,4 +18,9 @@ void Sim::Execute(double time)
 	}
 }
 
+void Sim::End()
+{
+	m_running = false;
+}
+
 }

@@ -4,6 +4,9 @@
 //p3::game
 
 namespace p3 {
+	class Game;
+
+	extern Game* game;
 
 /*
 	class Game : public Application { //Game application AKA Pi.pp, class-fied

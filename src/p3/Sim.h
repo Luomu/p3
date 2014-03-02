@@ -12,6 +12,7 @@ class Sim {
 public:
 	Sim();
 	void Execute(double time);
+	void End();
 
 	bool IsRunning() const { return m_running; }
 	double GetTimeAccelRate() const { return 1.0; }
