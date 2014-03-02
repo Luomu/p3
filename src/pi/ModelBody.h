@@ -24,7 +24,6 @@ public:
 	virtual void SetFrame(Frame *f);
 	// Colliding: geoms are checked against collision space
 	void SetColliding(bool colliding);
-	bool IsColliding() const { return m_colliding; }
 	// Static: geoms are static relative to frame
 	void SetStatic(bool isStatic);
 	bool IsStatic() const { return m_isStatic; }
@@ -40,7 +39,6 @@ public:
 
 protected:
 	void SetLighting(Graphics::Renderer *r, const Camera *camera, std::vector<Graphics::Light> &oldLights, Color &oldAmbient);
-	void ResetLighting(Graphics::Renderer *r, const std::vector<Graphics::Light> &oldLights, const Color &oldAmbient);
 
 private:
 	void RebuildCollisionMesh();
@@ -49,10 +47,7 @@ private:
 	void RemoveGeomsFromFrame(Frame*);
 	void MoveGeoms(const matrix4x4d&, const vector3d&);
 
-	void CalcLighting(double &ambient, double &direct, const Camera *camera);
-
 	bool m_isStatic;
-	bool m_colliding;
 	RefCountedPtr<CollMesh> m_collMesh;
 	Geom *m_geom; //static geom
 	std::string m_modelName;

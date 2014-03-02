@@ -1,5 +1,5 @@
 #include "p3/DynamicsSystem.h"
-#include "p3/DynamicsComponent.h"
+#include "p3/CoreComponents.h"
 
 namespace p3
 {

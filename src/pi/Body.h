@@ -65,8 +65,6 @@ public:
 
 	// Should return pointer in Pi::currentSystem
 	virtual const SystemBody *GetSystemBody() const { return 0; }
-	// for putting on planet surface, oriented +y up
-	void OrientOnSurface(double radius, double latitude, double longitude);
 
 	virtual void SetLabel(const std::string &label);
 	const std::string &GetLabel() const { return m_label; }

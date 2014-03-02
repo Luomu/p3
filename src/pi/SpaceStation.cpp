@@ -482,8 +482,6 @@ void SpaceStation::Render(Graphics::Renderer *r, const Camera *camera, const vec
 		m_adjacentCity->Render(r, camera->GetContext()->GetFrustum(), this, viewCoords, viewTransform);
 
 		RenderModel(r, camera, viewCoords, viewTransform, false);
-
-		ResetLighting(r, oldLights, oldAmbient);
 	}
 }
 

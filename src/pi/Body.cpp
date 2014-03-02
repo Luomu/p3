@@ -91,15 +91,6 @@ vector3d Body::GetVelocityRelTo(const Body *relTo) const
 	return GetVelocityRelTo(relTo->m_frame) - relTo->GetVelocityRelTo(relTo->m_frame);
 }
 
-void Body::OrientOnSurface(double radius, double latitude, double longitude)
-{
-	vector3d up = vector3d(cos(latitude)*cos(longitude), sin(latitude)*cos(longitude), sin(longitude));
-	SetPosition(radius * up);
-
-	vector3d right = up.Cross(vector3d(0,0,1)).Normalized();
-	SetOrient(matrix3x3d::FromVectors(right, up));
-}
-
 void Body::SwitchToFrame(Frame *newFrame)
 {
 	vector3d vel = GetVelocityRelTo(newFrame);		// do this first because it uses position
