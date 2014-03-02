@@ -1,5 +1,8 @@
 #pragma once
 #include "p3/Common.h"
+#include "p3/EntitySystem.h"
+
+#include "p3/DynamicsSystem.h"
 
 namespace p3 {
 
@@ -20,5 +23,10 @@ public:
 
 private:
 	bool m_running;
+	ent_ptr<entityx::EntityManager> m_entities;
+	ent_ptr<entityx::EventManager> m_eventManager;
+
+	//systems
+	ent_ptr<DynamicsSystem> m_dynamicsSystem;
 };
 }
