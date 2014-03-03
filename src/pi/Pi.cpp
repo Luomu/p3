@@ -3,7 +3,6 @@
 
 #include "Pi.h"
 #include "libs.h"
-#include "CityOnPlanet.h"
 #include "DeathView.h"
 #include "Factions.h"
 #include "FileSystem.h"
@@ -359,9 +358,6 @@ void Pi::Init(const std::map<std::string,std::string> &options)
 	GeoSphere::Init();
 	draw_progress(gauge, label, 0.7f);
 
-	CityOnPlanet::Init();
-	draw_progress(gauge, label, 0.8f);
-
 	SpaceStation::Init();
 	draw_progress(gauge, label, 0.9f);
 
@@ -393,7 +389,6 @@ void Pi::Quit()
 	delete Pi::luaConsole;
 	Sound::Uninit();
 	SpaceStation::Uninit();
-	CityOnPlanet::Uninit();
 	GeoSphere::Uninit();
 	Galaxy::Uninit();
 	Faction::Uninit();

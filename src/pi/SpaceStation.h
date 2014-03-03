@@ -14,7 +14,6 @@
 
 #define MAX_DOCKING_PORTS		240	//256-(0x10), 0x10 is used because the collision surfaces use it as an identifying flag
 
-class CityOnPlanet;
 class CollMeshSet;
 class Planet;
 class Ship;
@@ -109,7 +108,6 @@ private:
 	void InitStation();
 	const SpaceStationType *m_type;
 	const SystemBody *m_sbody;
-	CityOnPlanet *m_adjacentCity;
 	double m_distFromPlanet;
 	int m_numPoliceDocked;
 	enum { NUM_STATIC_SLOTS = 4 };

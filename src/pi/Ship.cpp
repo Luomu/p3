@@ -2,7 +2,6 @@
 // Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
 
 #include "Ship.h"
-#include "CityOnPlanet.h"
 #include "Lang.h"
 #include "EnumStrings.h"
 #include "LuaEvent.h"
@@ -253,15 +252,13 @@ bool Ship::OnCollision(Object *b, Uint32 flags, double relVel)
 	}
 
 	if (
-		b->IsType(Object::CITYONPLANET) ||
 		b->IsType(Object::SHIP) ||
 		b->IsType(Object::PLAYER) ||
 		b->IsType(Object::SPACESTATION) ||
 		b->IsType(Object::PLANET) ||
 		b->IsType(Object::STAR))
 	{
-		LuaEvent::Queue("onShipCollided", this,
-			b->IsType(Object::CITYONPLANET) ? dynamic_cast<CityOnPlanet*>(b)->GetPlanet() : dynamic_cast<Body*>(b));
+		LuaEvent::Queue("onShipCollided", this, dynamic_cast<Body*>(b));
 	}
 
 	return DynamicBody::OnCollision(b, flags, relVel);

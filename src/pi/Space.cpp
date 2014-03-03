@@ -7,7 +7,6 @@
 #include "Frame.h"
 #include "Star.h"
 #include "Planet.h"
-#include "CityOnPlanet.h"
 #include <algorithm>
 #include <functional>
 #include "Pi.h"
@@ -89,8 +88,6 @@ Space::Space(Game *game, const SystemPath &path)
 	Random rand(_init, 5);
 	m_background.reset(new Background::Container(Pi::renderer, rand));
 
-	CityOnPlanet::SetCityModelPatterns(m_starSystem->GetPath());
-
 	// XXX set radius in constructor
 	m_rootFrame.reset(new Frame(0, Lang::SYSTEM));
 	m_rootFrame->SetRadius(FLT_MAX);
@@ -121,8 +118,6 @@ Space::Space(Game *game, Serializer::Reader &rd, double at_time)
 	m_background.reset(new Background::Container(Pi::renderer, rand));
 
 	RebuildSystemBodyIndex();
-
-	CityOnPlanet::SetCityModelPatterns(m_starSystem->GetPath());
 
 	Serializer::Reader section = rd.RdSection("Frames");
 	m_rootFrame.reset(Frame::Unserialize(section, this, 0, at_time));
@@ -670,13 +665,8 @@ static bool OnCollision(Object *o1, Object *o2, CollisionContact *c, double rela
 {
 	Body *pb1 = static_cast<Body*>(o1);
 	Body *pb2 = static_cast<Body*>(o2);
-	/* Not always a Body (could be CityOnPlanet, which is a nasty exception I should eradicate) */
-	if (o1->IsType(Object::BODY)) {
-		if (pb1 && !pb1->OnCollision(o2, c->geomFlag, relativeVel)) return false;
-	}
-	if (o2->IsType(Object::BODY)) {
-		if (pb2 && !pb2->OnCollision(o1, c->geomFlag, relativeVel)) return false;
-	}
+	if (pb1 && !pb1->OnCollision(o2, c->geomFlag, relativeVel)) return false;
+	if (pb2 && !pb2->OnCollision(o1, c->geomFlag, relativeVel)) return false;
 	return true;
 }
 

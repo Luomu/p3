@@ -2,7 +2,6 @@
 // Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
 
 #include "SpaceStation.h"
-#include "CityOnPlanet.h"
 #include "FileSystem.h"
 #include "Frame.h"
 #include "Game.h"
@@ -56,7 +55,6 @@ SpaceStation::SpaceStation(const SystemBody *sbody): ModelBody()
 
 void SpaceStation::InitStation()
 {
-	m_adjacentCity = 0;
 	for(int i=0; i<NUM_STATIC_SLOTS; i++) m_staticSlot[i] = false;
 	Random rand(m_sbody->GetSeed());
 	bool ground = m_sbody->GetType() == SystemBody::TYPE_STARPORT_ORBITAL ? false : true;
@@ -88,8 +86,6 @@ void SpaceStation::InitStation()
 
 	SceneGraph::Model *model = GetModel();
 
-	if (ground) SetClipRadius(CITY_ON_PLANET_RADIUS);		// overrides setmodel
-
 	m_doorAnimation = model->FindAnimation("doors");
 
 	SceneGraph::ModelSkin skin;
@@ -99,7 +95,6 @@ void SpaceStation::InitStation()
 
 SpaceStation::~SpaceStation()
 {
-	if (m_adjacentCity) delete m_adjacentCity;
 }
 
 void SpaceStation::NotifyRemoved(const Body* const removedBody)
@@ -475,11 +470,6 @@ void SpaceStation::Render(Graphics::Renderer *r, const Camera *camera, const vec
 		SetLighting(r, camera, oldLights, oldAmbient);
 
 		Planet *planet = static_cast<Planet*>(b);
-
-		if (!m_adjacentCity) {
-			m_adjacentCity = new CityOnPlanet(planet, this, m_sbody->GetSeed());
-		}
-		m_adjacentCity->Render(r, camera->GetContext()->GetFrustum(), this, viewCoords, viewTransform);
 
 		RenderModel(r, camera, viewCoords, viewTransform, false);
 	}
