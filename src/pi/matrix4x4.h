@@ -15,13 +15,15 @@ class matrix4x4 {
 	T cell[16];
 	public:
 	matrix4x4 () {}
-	matrix4x4 (T val) {
-		cell[0] = cell[1] = cell[2] = cell[3] = cell[4] = cell[5] = cell[6] =
-		cell[7] = cell[8] = cell[9] = cell[10] = cell[11] = cell[12] = cell[13] =
-		cell[14] = cell[15] = val;
-	}
 	matrix4x4 (const T *vals) {
 		memcpy(cell, vals, sizeof(T)*16);
+	}
+	//diagonal constructor
+	matrix4x4 (const T val) {
+		cell[0] = val; cell[4] = 0.f; cell[8] = 0.f; cell[12] = 0.f;
+		cell[1] = 0.f; cell[5] = val; cell[9] = 0.f; cell[13] = 0.f;
+		cell[2] = 0.f; cell[6] = 0.f; cell[10] = val; cell[14] = 0.f;
+		cell[3] = 0.f; cell[7] = 0.f; cell[11] = 0.f; cell[15] = val;
 	}
 	void SetTranslate(const vector3<T> &v) { cell[12] = v.x; cell[13] = v.y; cell[14] = v.z; }
 	vector3<T> GetTranslate() const { return vector3<T>(cell[12], cell[13], cell[14]); }
@@ -395,12 +397,12 @@ typedef matrix4x4<double> matrix4x4d;
 
 static inline void matrix4x4ftod(const matrix4x4f &in, matrix4x4d &out)
 {
-	for (int i = 0; i < 16; i++) 
+	for (int i = 0; i < 16; i++)
 		out[i] = double(in[i]);
 }
 static inline void matrix4x4dtof(const matrix4x4d &in, matrix4x4f &out)
 {
-	for (int i = 0; i < 16; i++) 
+	for (int i = 0; i < 16; i++)
 		out[i] = float(in[i]);
 }
 

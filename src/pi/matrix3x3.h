@@ -17,6 +17,11 @@ class matrix3x3 {
 	matrix3x3 (const T *vals) {
 		memcpy(cell, vals, sizeof(T)*9);
 	}
+	//diagonal constructor
+	matrix3x3(T val) {
+		cell[1] = cell[2] = cell[3] = cell[5] = cell[6] = cell[7] = 0.f;
+		cell[0] = cell[4] = cell[8] = val;
+	}
 	T& operator [] (const size_t i) { return cell[i]; }			// used for serializing
 	const T& operator[] (const size_t i) const { return cell[i]; }
 
@@ -146,12 +151,12 @@ typedef matrix3x3<double> matrix3x3d;
 
 static inline void matrix3x3ftod(const matrix3x3f &in, matrix3x3d &out)
 {
-	for (int i = 0; i < 9; i++) 
+	for (int i = 0; i < 9; i++)
 		out[i] = double(in[i]);
 }
 static inline void matrix3x3dtof(const matrix3x3d &in, matrix3x3f &out)
 {
-	for (int i = 0; i < 9; i++) 
+	for (int i = 0; i < 9; i++)
 		out[i] = float(in[i]);
 }
 
