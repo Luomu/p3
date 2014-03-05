@@ -6,4 +6,5 @@ using ent_ptr = entityx::ptr<T>;
 
 using entityx::EntityManager;
 using entityx::EventManager;
+using entityx::Entity;
 }

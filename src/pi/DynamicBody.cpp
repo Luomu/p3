@@ -28,7 +28,6 @@ DynamicBody::DynamicBody(): ModelBody()
 	m_gravityForce = vector3d(0.0);
 	m_externalForce = vector3d(0.0);		// do external forces calc instead?
 	m_lastForce = vector3d(0.0);
-	m_lastTorque = vector3d(0.0);
 }
 
 void DynamicBody::SetForce(const vector3d &f)
@@ -155,7 +154,6 @@ void DynamicBody::TimeStepUpdate(const float timeStep)
 //	m_externalForce.x, m_externalForce.y, m_externalForce.z);
 
 		m_lastForce = m_force;
-		m_lastTorque = m_torque;
 		m_force = vector3d(0.0);
 		m_torque = vector3d(0.0);
 		CalcExternalForce();			// regenerate for new pos/vel
@@ -232,14 +230,3 @@ bool DynamicBody::OnCollision(Object *o, Uint32 flags, double relVel)
 	return true;
 }
 
-// return parameters for orbit of any body, gives both elliptic and hyperbolic trajectories
-Orbit DynamicBody::ComputeOrbit() const {
-	const Frame *frame = this->GetFrame()->GetNonRotFrame();
-	const double mass = frame->GetSystemBody()->GetMass();
-
-	// current velocity and position with respect to non-rotating frame
-	const vector3d vel = this->GetVelocityRelTo(frame);
-	const vector3d pos = this->GetPositionRelTo(frame);
-
-	return Orbit::FromBodyState(pos, vel, mass);
-}

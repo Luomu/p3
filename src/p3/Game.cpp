@@ -6,7 +6,9 @@
 #include "pi/ModManager.h"
 #include "pi/Lang.h"
 #include "pi/EnumStrings.h"
+#include "p3/Scene.h"
 
+//Lua API
 #include "p3/LuaEngine.h"
 #include "pi/LuaConstants.h"
 #include "pi/LuaLang.h"
@@ -22,9 +24,10 @@ void Game::Init(const std::map<std::string, std::string>& options)
 	OS::NotifyLoadBegin();
 	FileSystem::Init();
 	FileSystem::userFiles.MakeDirectory(""); // ensure the config directory exists
-	m_config.reset(new GameConfig(/*pass option overrides here*/));
+	m_config.reset(new GameConfig(options));
 	if (m_config->Int("RedirectStdio"))
 		OS::RedirectStdio();
+	//don't have any kbinds yet
 	//KeyBindings::InitBindings();
 	ModManager::Init();
 	Lang::Resource res(Lang::GetResource("core", GetConfig()->String("Lang")));
@@ -51,6 +54,8 @@ void Game::Init(const std::map<std::string, std::string>& options)
 	                           Lang::GetCore().GetLangCode()));
 
 	InitLua();
+
+	m_modelCache.reset(new ModelCache(GetRenderer()));
 
 	OS::NotifyLoadEnd();
 }
@@ -112,8 +117,7 @@ void Game::Run()
 
 		//render
 		m_renderer->BeginFrame();
-		m_renderer->SetClearColor(Color(12, 12, 93, 255));
-		m_renderer->ClearScreen();
+		m_sim->GetScene()->Render();
 		m_ui->Draw();
 		m_renderer->EndFrame();
 		m_renderer->SwapBuffers();

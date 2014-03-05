@@ -37,18 +37,15 @@ public:
 	void SetForce(const vector3d &);
 	void SetTorque(const vector3d &);
 	vector3d GetLastForce() const { return m_lastForce; }
-	vector3d GetLastTorque() const { return m_lastTorque; }
 	// body-relative forces
 	void AddRelForce(const vector3d &);
 	void AddRelTorque(const vector3d &);
 	vector3d GetExternalForce() const { return m_externalForce; }
 	vector3d GetAtmosForce() const { return m_atmosForce; }
-	vector3d GetGravityForce() const { return m_gravityForce; }
 	virtual void UpdateInterpTransform(double alpha);
 
 	virtual void PostLoadFixup(Space *space);
 
-	Orbit ComputeOrbit() const;
 private:
 	vector3d m_oldPos;
 	vector3d m_oldAngDisplacement;
@@ -67,7 +64,6 @@ private:
 	vector3d m_gravityForce;
 	// for time accel reduction fudge
 	vector3d m_lastForce;
-	vector3d m_lastTorque;
 };
 
 #endif /* _DYNAMICBODY_H */

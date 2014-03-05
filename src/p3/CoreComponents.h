@@ -16,9 +16,22 @@ struct NameComponent : public entityx::Component<NameComponent> {
 	std::string name;
 };
 
+struct PosOrientComponent : public entityx::Component<PosOrientComponent> {
+	vector3d pos;
+	matrix3x3d orient;
+
+	//interpolated for drawing
+	vector3d interpPos;
+	matrix3x3d interpOrient;
+};
+
+struct MassComponent : public entityx::Component<MassComponent> {
+	MassComponent(double initialMass) : mass(initialMass) {}
+	double mass;
+};
+
 //for things that move according to physics
 struct DynamicsComponent : public entityx::Component<DynamicsComponent> {
-	double mass;
 	vector3d force;
 	vector3d torque;
 	vector3d vel;
@@ -50,5 +63,29 @@ struct ModelComponent : public entityx::Component<ModelComponent> {
 	}
 	SceneGraph::Model* model;
 };
+
+//a body
+//has position
+//has orientation
+//has clipping radius
+//has physical radius
+//has label
+//resides in Frame
+
+//a dynamic body
+//has mass
+//has velocity
+//has torque
+//has angular velocity
+
+//A terrain body:
+//has mass
+//has a geosphere gfx
+//has an associated system body
+//is not subject to dynamics (pos/orient from frame)
+//has a planet geom
+
+//A star
+//is a terrainbody a halo
 
 }

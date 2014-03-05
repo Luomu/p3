@@ -3,6 +3,7 @@
 #include "p3/Sim.h"
 #include "graphics/Renderer.h"
 #include "ui/Context.h"
+#include "pi/ModelCache.h"
 
 namespace p3
 {
@@ -16,6 +17,7 @@ public:
 	Graphics::Renderer* GetRenderer() const { return m_renderer.get(); }
 	Sim* GetSim() const { m_sim; }
 	UI::Context* GetUI() const { return m_ui.Get(); }
+	ModelCache* GetModelCache() const { return m_modelCache.get(); }
 
 private:
 	void HandleEvents();
@@ -23,6 +25,7 @@ private:
 
 	std::unique_ptr<Graphics::Renderer> m_renderer;
 	RefCountedPtr<UI::Context> m_ui;
+	std::unique_ptr<ModelCache> m_modelCache;
 	Sim* m_sim;
 };
 }
