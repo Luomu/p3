@@ -774,6 +774,10 @@ void Loader::ConvertNodes(aiNode *node, Group *_parent, std::vector<RefCountedPt
 		return;
 	}
 
+	//ZZZ workaround
+	if (ends_with_ci(nodename, "_shield"))
+		return;
+
 	//if the transform is identity and the node is not animated,
 	//could just add a group
 	parent = new MatrixTransform(m_renderer, m);

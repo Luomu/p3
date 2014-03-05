@@ -50,15 +50,6 @@ RendererGL2::RendererGL2(WindowSDL *window, const Graphics::Settings &vs)
 	const bool useDXTnTextures = vs.useTextureCompression && IsGLExtensionSupported("GL_EXT_texture_compression_s3tc");
 	m_useCompressedTextures = useDXTnTextures;
 
-	//XXX bunch of fixed function states here!
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_LIGHT0);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
 	glMatrixMode(GL_MODELVIEW);
 	m_modelViewStack.push(matrix4x4f::Identity());
