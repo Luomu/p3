@@ -10,6 +10,7 @@
 #include "graphics/RenderState.h"
 #include <list>
 #include <stack>
+#include "gl_core.h"
 
 namespace Graphics { class Renderer; }
 

@@ -4,6 +4,7 @@
 #ifndef GL2_VERTEXBUFFER_H
 #define GL2_VERTEXBUFFER_H
 #include "graphics/VertexBuffer.h"
+#include "gl_core.h"
 
 namespace Graphics { namespace GL2 {
 

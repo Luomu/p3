@@ -12,6 +12,7 @@
  *  - get rid of built-in glMaterial, glMatrix use
  */
 #include "Renderer.h"
+#include "gl_core.h"
 #include <stack>
 #include <unordered_map>
 

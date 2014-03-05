@@ -5,7 +5,6 @@
 #define _GRAPHICS_H
 
 #include "libs.h"
-#include "gl_core.h"
 #include "RenderTarget.h"
 
 /*

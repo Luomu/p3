@@ -2,6 +2,7 @@
 // Licensed under the terms of the GPL v3. See licenses/GPL-3.txt
 
 #include "graphics/gl2/GL2RenderState.h"
+#include "gl_core.h"
 
 namespace Graphics
 {

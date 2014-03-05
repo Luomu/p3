@@ -4,7 +4,6 @@
 #ifndef GRAPHICS_TYPES_H
 #define GRAPHICS_TYPES_H
 #include "libs.h"
-#include "gl_core.h"
 
 namespace Graphics {
 
@@ -41,16 +40,16 @@ enum BufferMapMode {
 };
 
 enum LineType {
-	LINE_SINGLE = GL_LINES, //draw one line per two vertices
-	LINE_STRIP = GL_LINE_STRIP,  //connect vertices
-	LINE_LOOP = GL_LINE_LOOP    //connect vertices,  connect start & end
+	LINE_SINGLE = 0x0001, //GL_LINES, //draw one line per two vertices
+	LINE_STRIP = 0x0003, //GL_LINE_STRIP,  //connect vertices
+	LINE_LOOP = 0x0002//GL_LINE_LOOP    //connect vertices,  connect start & end
 };
 
 enum PrimitiveType {
-	TRIANGLES = GL_TRIANGLES,
-	TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-	TRIANGLE_FAN = GL_TRIANGLE_FAN,
-	POINTS = GL_POINTS
+	TRIANGLES = 0x0004, //GL_TRIANGLES,
+	TRIANGLE_STRIP = 0x0005, //GL_TRIANGLE_STRIP,
+	TRIANGLE_FAN = 0x0006, //GL_TRIANGLE_FAN,
+	POINTS = 0x0000 //GL_POINTS
 };
 
 enum BlendMode {
