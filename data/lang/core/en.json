@@ -1954,5 +1954,13 @@
    "ZOOM_OUT" : {
       "description" : "",
       "message" : "Zoom out"
+   },
+   "INCREASE_THRUST" : {
+      "description" : "",
+      "message" : "Increase thrust"
+   },
+   "DECREASE_THRUST" : {
+      "description" : "",
+      "message" : "Decrease thrust"
    }
 }

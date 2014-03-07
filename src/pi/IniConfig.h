@@ -17,6 +17,7 @@ namespace FileSystem {
 class IniConfig {
 public:
 	IniConfig() {}
+	virtual ~IniConfig() {}
 
 	void Read(FileSystem::FileSource &fs, const std::string &path);
 	void Read(const FileSystem::FileData &data);
@@ -48,6 +49,9 @@ public:
 		return (it != m_map.end()) && it->second.count(key);
 	}
 	bool HasEntry(const std::string &key) const { return HasEntry("", key); }
+
+	virtual bool Save() { return false; }
+	virtual void Load() { }
 
 protected:
 	typedef std::map<std::string, std::string> MapType;

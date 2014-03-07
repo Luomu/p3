@@ -10,8 +10,8 @@ class GameConfig : public IniConfig {
 public:
 	GameConfig(const std::map<std::string,std::string> &override_ = std::map<std::string,std::string>());
 
-	void Load();
-	bool Save();
+	virtual void Load() override;
+	virtual bool Save() override;
 };
 
 #endif

@@ -7,6 +7,7 @@
 #include "pi/Lang.h"
 #include "pi/EnumStrings.h"
 #include "p3/Scene.h"
+#include "p3/KeyBindings.h"
 
 //Lua API
 #include "p3/LuaEngine.h"
@@ -27,8 +28,7 @@ void Game::Init(const std::map<std::string, std::string>& options)
 	m_config.reset(new GameConfig(options));
 	if (m_config->Int("RedirectStdio"))
 		OS::RedirectStdio();
-	//don't have any kbinds yet
-	//KeyBindings::InitBindings();
+	KeyBindings::InitBindings();
 	ModManager::Init();
 	Lang::Resource res(Lang::GetResource("core", GetConfig()->String("Lang")));
 	Lang::MakeCore(res);
