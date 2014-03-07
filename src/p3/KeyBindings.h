@@ -141,6 +141,13 @@ namespace Keyboard
 	inline int ModState() { return modState; }
 }
 
+namespace Mouse
+{
+	extern char button[6];
+	extern int  motion[2];
+	extern sigc::signal<void, bool> onWheel;
+}
+
 namespace Joystick
 {
 	//ZZZ unimplemented

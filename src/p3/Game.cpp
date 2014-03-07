@@ -132,25 +132,77 @@ void Game::Run()
 void Game::HandleEvents()
 {
 	SDL_Event event;
+
+	// XXX for most keypresses SDL will generate KEYUP/KEYDOWN and TEXTINPUT
+	// events. keybindings run off KEYUP/KEYDOWN. the console is opened/closed
+	// via keybinding. the console TextInput widget uses TEXTINPUT events. thus
+	// after switching the console, the stray TEXTINPUT event causes the
+	// console key (backtick) to appear in the text entry field. we hack around
+	// this by setting this flag if the console was switched. if its set, we
+	// swallow the TEXTINPUT event this hack must remain until we have a
+	// unified input system
+	bool skipTextInput = false;
+
+	Mouse::motion[0] = Mouse::motion[1] = 0;
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			if (m_sim)
 				m_sim->End();
 		}
 
-		//gui may swallow event
+		if (skipTextInput && event.type == SDL_TEXTINPUT) {
+			skipTextInput = false;
+			continue;
+		}
 		if (GetUI()->DispatchSDLEvent(event))
 			continue;
 
-		//extra check for active console
+#if 0
+		bool consoleActive = Pi::IsConsoleActive();
+		if (!consoleActive)
+			KeyBindings::DispatchSDLEvent(&event);
+		else
+			KeyBindings::toggleLuaConsole.CheckSDLEventAndDispatch(&event);
+		if (consoleActive != Pi::IsConsoleActive()) {
+			skipTextInput = true;
+			continue;
+		}
+
+		if (Pi::IsConsoleActive())
+			continue;
+#else
+		KeyBindings::DispatchSDLEvent(&event);
+#endif
 
 		switch (event.type) {
-		case SDL_KEYDOWN: {
+		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_ESCAPE) {
 				if (m_sim)
 					m_sim->End();
+				break;
 			}
-		}
+			Keyboard::state[event.key.keysym.sym] = true;
+			Keyboard::modState = event.key.keysym.mod;
+			break;
+		case SDL_KEYUP:
+			Keyboard::state[event.key.keysym.sym] = false;
+			Keyboard::modState = event.key.keysym.mod;
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			if (event.button.button < COUNTOF(Mouse::button))
+				Mouse::button[event.button.button] = 1;
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button < COUNTOF(Mouse::button))
+				Mouse::button[event.button.button] = 0;
+			break;
+		case SDL_MOUSEWHEEL:
+			Mouse::onWheel.emit(event.wheel.y > 0); // true = up
+			break;
+		case SDL_MOUSEMOTION:
+			Mouse::motion[0] += event.motion.xrel;
+			Mouse::motion[1] += event.motion.yrel;
+			break;
 		}
 	}
 }

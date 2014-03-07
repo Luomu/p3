@@ -18,6 +18,10 @@ namespace Keyboard
 	int modState = 0;
 }
 
+int  Mouse::motion[2] = {};
+char Mouse::button[6] = {};
+sigc::signal<void, bool> Mouse::onWheel;
+
 namespace KeyBindings
 {
 
