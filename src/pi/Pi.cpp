@@ -374,7 +374,7 @@ void Pi::Init(const std::map<std::string,std::string> &options)
 
 	OS::NotifyLoadEnd();
 
-	luaConsole = new LuaConsole();
+	luaConsole = new LuaConsole(Pi::ui.Get());
 	KeyBindings::toggleLuaConsole.onPress.connect(sigc::mem_fun(Pi::luaConsole, &LuaConsole::Toggle));
 }
 

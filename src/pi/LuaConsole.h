@@ -17,7 +17,7 @@ namespace UI {
 
 class LuaConsole {
 public:
-	LuaConsole();
+	LuaConsole(UI::Context*);
 	virtual ~LuaConsole();
 
 	void Toggle();
@@ -53,6 +53,8 @@ private:
 	std::string m_precompletionStatement;
 	std::vector<std::string> m_completionList;
 	unsigned int m_currentCompletion;
+
+	UI::Context* m_ui;
 };
 
 #endif /* _LUACONSOLE_H */

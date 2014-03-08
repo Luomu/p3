@@ -3,7 +3,6 @@
 
 #include "LuaConsole.h"
 #include "LuaManager.h"
-#include "Pi.h"
 #include "ui/Context.h"
 #include "text/TextureFont.h"
 #include "text/TextSupport.h"
@@ -22,20 +21,25 @@ static const char CONSOLE_CHUNK_NAME[] = "[T] console";
 static const char CONSOLE_CHUNK_NAME[] = "console";
 #endif
 
-LuaConsole::LuaConsole():
+//registered for lua api
+LuaConsole *s_consoleInstance = nullptr;
+
+LuaConsole::LuaConsole(UI::Context* ui):
 	m_active(false),
 	m_precompletionStatement(),
-	m_completionList() {
+	m_completionList(),
+	m_ui(ui)
+{
 
-	m_output = Pi::ui->MultiLineText("");
-	m_entry = Pi::ui->TextEntry();
+	m_output = ui->MultiLineText("");
+	m_entry = ui->TextEntry();
 
-	m_scroller = Pi::ui->Scroller()->SetInnerWidget(m_output);
+	m_scroller = ui->Scroller()->SetInnerWidget(m_output);
 
-	m_container.Reset(Pi::ui->Margin(10)->SetInnerWidget(
-		Pi::ui->ColorBackground(Color(0,0,0,0xc0))->SetInnerWidget(
-			Pi::ui->VBox()->PackEnd(UI::WidgetSet(
-				Pi::ui->Expand()->SetInnerWidget(
+	m_container.Reset(ui->Margin(10)->SetInnerWidget(
+		ui->ColorBackground(Color(0,0,0,0xc0))->SetInnerWidget(
+			ui->VBox()->PackEnd(UI::WidgetSet(
+				ui->Expand()->SetInnerWidget(
 					m_scroller
 				),
 				m_entry
@@ -52,15 +56,17 @@ LuaConsole::LuaConsole():
 	m_historyPosition = -1;
 
 	RegisterAutoexec();
+
+	s_consoleInstance = this;
 }
 
 void LuaConsole::Toggle()
 {
 	if (m_active)
-		Pi::ui->DropLayer();
+		m_ui->DropLayer();
 	else {
-		Pi::ui->NewLayer()->SetInnerWidget(m_container.Get());
-		Pi::ui->SelectWidget(m_entry);
+		m_ui->NewLayer()->SetInnerWidget(m_container.Get());
+		m_ui->SelectWidget(m_entry);
 	}
 	m_active = !m_active;
 }
@@ -154,7 +160,10 @@ void LuaConsole::RegisterAutoexec() {
 	LUA_DEBUG_END(L, 0);
 }
 
-LuaConsole::~LuaConsole() {}
+LuaConsole::~LuaConsole()
+{
+	s_consoleInstance = nullptr;
+}
 
 bool LuaConsole::OnKeyDown(const UI::KeyboardEvent &event) {
 
@@ -237,7 +246,7 @@ void LuaConsole::OnEnter(const std::string &text) {
 	if (!text.empty())
 		ExecOrContinue(text);
 	m_completionList.clear();
-	Pi::ui->SelectWidget(m_entry);
+	m_ui->SelectWidget(m_entry);
 	m_scroller->SetScrollPosition(1.0f);
 }
 
@@ -453,10 +462,10 @@ void LuaConsole::ExecOrContinue(const std::string &stmt) {
  *   stable
  */
 static int l_console_addline(lua_State *L) {
-	if (Pi::luaConsole) {
+	if (s_consoleInstance) {
 		size_t len;
 		const char *s = luaL_checklstring(L, 1, &len);
-		Pi::luaConsole->AddOutput(std::string(s, len));
+		s_consoleInstance->AddOutput(std::string(s, len));
 	}
 	return 0;
 }
@@ -479,8 +488,8 @@ static int l_console_print(lua_State *L) {
 	}
 	lua_pop(L, 1);
 	Output("%s\n", line.c_str());
-	if (Pi::luaConsole) {
-		Pi::luaConsole->AddOutput(line);
+	if (s_consoleInstance) {
+		s_consoleInstance->AddOutput(line);
 	}
 	LUA_DEBUG_END(L, 0);
 	return 0;
