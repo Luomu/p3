@@ -34,10 +34,19 @@ struct MassComponent : public entityx::Component<MassComponent> {
 
 //for things that move according to physics
 struct DynamicsComponent : public entityx::Component<DynamicsComponent> {
+	DynamicsComponent()
+		: force(0.0)
+		, torque(0.0)
+		, vel(0.0)
+		, angVel(0.0)
+		, angInertia(1.0)
+	{
+	}
 	vector3d force;
 	vector3d torque;
 	vector3d vel;
 	vector3d angVel;
+	double angInertia;
 };
 
 //for entities that can be damaged and destroyed
