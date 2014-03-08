@@ -2,6 +2,7 @@
 #include "p3/Common.h"
 #include "p3/EntitySystem.h"
 #include "p3/DynamicsSystem.h"
+#include "p3/PlayerInputSystem.h"
 
 namespace p3 {
 
@@ -34,5 +35,7 @@ private:
 
 	//systems
 	ent_ptr<DynamicsSystem> m_dynamicsSystem;
+	ent_ptr<PlayerInputSystem> m_inputSystem;
+	ent_ptr<ThrusterSystem> m_thrusterSystem;
 };
 }

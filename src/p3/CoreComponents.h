@@ -17,6 +17,8 @@ struct NameComponent : public entityx::Component<NameComponent> {
 };
 
 struct PosOrientComponent : public entityx::Component<PosOrientComponent> {
+	PosOrientComponent()
+		: pos(0.0), orient(1.0), interpPos(0.0), interpOrient(1.0) { }
 	vector3d pos;
 	matrix3x3d orient;
 
@@ -52,7 +54,7 @@ struct HealthComponent : public entityx::Component<HealthComponent> {
 //has a triangle soup collision mesh
 struct CollisionMeshComponent : public entityx::Component<CollisionMeshComponent> {
 	RefCountedPtr<CollMesh> mesh;
-	Geom *geom;
+	Geom* geom;
 };
 
 //has a model for rendering (this is a placeholder)
@@ -62,6 +64,16 @@ struct ModelComponent : public entityx::Component<ModelComponent> {
 	{
 	}
 	SceneGraph::Model* model;
+};
+
+struct PlayerInputComponent : public entityx::Component<PlayerInputComponent> {
+};
+
+struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
+	ThrusterComponent() : linear(0.0), angular(0.0) { }
+
+	vector3d linear;
+	vector3d angular;
 };
 
 //a body

@@ -16,12 +16,19 @@ Sim::Sim()
 	m_scene = new Scene(p3::game->GetRenderer(), m_entities, m_eventManager);
 
 	m_dynamicsSystem.reset(new DynamicsSystem());
+	m_inputSystem.reset(new PlayerInputSystem());
+	m_thrusterSystem.reset(new ThrusterSystem());
 
 	//init "player"
 	auto model = p3::game->GetModelCache()->FindModel("natrix");
 	SDL_assert(model);
 	Entity player = m_entities->create();
 	player.assign<ModelComponent>(model);
+	player.assign<PosOrientComponent>();
+	player.assign<MassComponent>(10.0);
+	player.assign<DynamicsComponent>();
+	player.assign<ThrusterComponent>();
+	player.assign<PlayerInputComponent>();
 }
 
 Sim::~Sim()
@@ -35,6 +42,8 @@ void Sim::Execute(double time)
 	totalElapsed += time;
 
 	//update systems
+	m_inputSystem->update(m_entities, m_eventManager, time);
+	m_thrusterSystem->update(m_entities, m_eventManager, time);
 	m_dynamicsSystem->update(m_entities, m_eventManager, time);
 
 	if (totalElapsed > 30) {

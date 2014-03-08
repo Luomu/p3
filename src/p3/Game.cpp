@@ -14,6 +14,7 @@
 #include "pi/LuaConstants.h"
 #include "pi/LuaLang.h"
 #include "pi/LuaFileSystem.h"
+#include "pi/LuaEvent.h"
 
 namespace p3
 {
@@ -78,6 +79,8 @@ void Game::Run()
 	const Uint32 MAX_PHYSICS_TICKS = Clamp(GetConfig()->Int("MaxPhysicsCyclesPerRender"), 0, 4);
 
 	m_sim = new Sim();
+	LuaEvent::Queue("onGameStart");
+	LuaEvent::Emit();
 
 	GetUI()->DropAllLayers();
 	auto w = GetUI()->CallTemplate("Test");

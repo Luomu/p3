@@ -11,13 +11,12 @@ class ModelRenderSystem : public entityx::System<ModelRenderSystem>
 public:
 	virtual void update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt) override
 	{
-		float foo = -100.f;
 		matrix4x4f trans(1.f);
-		for (auto entity : em->entities_with_components<ModelComponent>()) {
+		for (auto entity : em->entities_with_components<ModelComponent, PosOrientComponent>()) {
 			ent_ptr<ModelComponent> mc = entity.component<ModelComponent>();
-			trans.SetTranslate(vector3f(0.f, 0.f, foo));
+			ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
+			trans.SetTranslate(vector3f(poc->pos));
 			mc->model->Render(trans);
-			foo -= 1.f;
 		}
 	}
 };
