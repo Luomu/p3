@@ -18,6 +18,7 @@ Sim::Sim()
 	m_dynamicsSystem.reset(new DynamicsSystem());
 	m_inputSystem.reset(new PlayerInputSystem());
 	m_thrusterSystem.reset(new ThrusterSystem());
+	m_transInterpSystem.reset(new TransInterpSystem());
 
 	//init "player"
 	auto model = p3::game->GetModelCache()->FindModel("natrix");
@@ -55,6 +56,13 @@ void Sim::Execute(double time)
 void Sim::End()
 {
 	m_running = false;
+}
+
+void Sim::InterpolatePositions(double gameTickAlpha)
+{
+	//update bodies
+    m_transInterpSystem->update(m_entities, m_eventManager, gameTickAlpha);
+    //update frames
 }
 
 }

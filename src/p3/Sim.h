@@ -19,6 +19,7 @@ public:
 	~Sim();
 	void Execute(double time);
 	void End();
+	void InterpolatePositions(double gameTickAlpha);
 
 	bool IsRunning() const { return m_running; }
 	double GetTimeAccelRate() const { return 1.0; }
@@ -37,5 +38,8 @@ private:
 	ent_ptr<DynamicsSystem> m_dynamicsSystem;
 	ent_ptr<PlayerInputSystem> m_inputSystem;
 	ent_ptr<ThrusterSystem> m_thrusterSystem;
+
+	//run between sim::execute and scene::render
+	ent_ptr<TransInterpSystem> m_transInterpSystem;
 };
 }

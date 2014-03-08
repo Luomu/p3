@@ -25,6 +25,10 @@ struct PosOrientComponent : public entityx::Component<PosOrientComponent> {
 	//interpolated for drawing
 	vector3d interpPos;
 	matrix3x3d interpOrient;
+
+	//previous state used for interpolation
+	vector3d oldPos;
+	vector3d oldAngDisplacement;
 };
 
 struct MassComponent : public entityx::Component<MassComponent> {

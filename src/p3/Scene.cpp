@@ -18,8 +18,8 @@ public:
 			matrix4x4f viewMatrix(1.f);
 			viewMatrix.SetTranslate(vector3f(0.f, 0.f, -100.f));
 
-			matrix4x4d modelMatrix = poc->orient;
-			modelMatrix.SetTranslate(poc->pos);
+			matrix4x4d modelMatrix = poc->interpOrient;
+			modelMatrix.SetTranslate(poc->interpPos);
 
 			matrix4x4f modelMatrixf;
 			for (Uint32 i = 0; i < 16; i++)

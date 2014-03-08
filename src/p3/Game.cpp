@@ -118,6 +118,8 @@ void Game::Run()
 			//possible paused updates
 		}
 
+		m_sim->InterpolatePositions(gameTickAlpha);
+
 		HandleEvents();
 		m_ui->Update();
 

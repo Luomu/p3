@@ -13,6 +13,10 @@ void DynamicsSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> eve
         SDL_assert(poc);
         SDL_assert(mc);
 
+        //save previous
+        poc->oldPos = poc->pos;
+        poc->oldAngDisplacement = dc->angVel * dt;
+
 		dc->vel += dt * dc->force * (1.0 / mc->mass);
 		dc->angVel += dt * dc->torque * (1.0 / dc->angInertia);
 
@@ -28,6 +32,23 @@ void DynamicsSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> eve
 
 		dc->force = vector3d(0.0);
 		dc->torque = vector3d(0.0);
+	}
+}
+
+void TransInterpSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double alpha)
+{
+	for (auto entity : em->entities_with_components<PosOrientComponent>()) {
+		ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
+
+		poc->interpPos = alpha * poc->pos + (1.0 - alpha) * poc->oldPos;
+
+		const double len = poc->oldAngDisplacement.Length() * (1.0 - alpha);
+		if (len > 1e-16) {
+			const vector3d axis = poc->oldAngDisplacement.Normalized();
+			const matrix3x3d rot = matrix3x3d::Rotate(-len, axis); //rotate backwards
+			poc->interpOrient = rot * poc->orient;
+		} else
+			poc->interpOrient = poc->orient;
 	}
 }
 
