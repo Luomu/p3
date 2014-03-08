@@ -4,6 +4,7 @@
 #include "graphics/Renderer.h"
 #include "ui/Context.h"
 #include "pi/ModelCache.h"
+#include "pi/LuaConsole.h"
 
 namespace p3
 {
@@ -24,8 +25,9 @@ private:
 	void InitLua();
 
 	std::unique_ptr<Graphics::Renderer> m_renderer;
-	RefCountedPtr<UI::Context> m_ui;
+	std::unique_ptr<LuaConsole> m_console;
 	std::unique_ptr<ModelCache> m_modelCache;
+	RefCountedPtr<UI::Context> m_ui;
 	Sim* m_sim;
 };
 }

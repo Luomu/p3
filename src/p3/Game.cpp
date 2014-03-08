@@ -57,12 +57,15 @@ void Game::Init(const std::map<std::string, std::string>& options)
 
 	m_modelCache.reset(new ModelCache(GetRenderer()));
 
+	m_console.reset(new LuaConsole(GetUI()));
+	KeyBindings::toggleLuaConsole.onPress.connect(sigc::mem_fun(m_console.get(), &LuaConsole::Toggle));
+
 	OS::NotifyLoadEnd();
 }
 
 void Game::Uninit()
 {
-	static_cast<p3::GameConfig*>(m_config.get())->Save();
+	m_config->Save();
 	m_ui.Reset();
 	Lua::Uninit();
 	Graphics::Uninit();
@@ -157,22 +160,18 @@ void Game::HandleEvents()
 		if (GetUI()->DispatchSDLEvent(event))
 			continue;
 
-#if 0
-		bool consoleActive = Pi::IsConsoleActive();
+		bool consoleActive = m_console->IsActive();
 		if (!consoleActive)
 			KeyBindings::DispatchSDLEvent(&event);
 		else
 			KeyBindings::toggleLuaConsole.CheckSDLEventAndDispatch(&event);
-		if (consoleActive != Pi::IsConsoleActive()) {
+		if (consoleActive != m_console->IsActive()) {
 			skipTextInput = true;
 			continue;
 		}
 
-		if (Pi::IsConsoleActive())
+		if (m_console->IsActive())
 			continue;
-#else
-		KeyBindings::DispatchSDLEvent(&event);
-#endif
 
 		switch (event.type) {
 		case SDL_KEYDOWN:
@@ -215,6 +214,7 @@ void Game::InitLua()
 	LuaLang::Register();
 	p3::LuaEngine::Register();
 	LuaFileSystem::Register();
+	LuaConsole::Register();
 
 	UI::Lua::Init();
 
