@@ -115,10 +115,12 @@ solution "P3"
 	project "jenkins"
 		kind "StaticLib"
 		files { BASEDIR .. "contrib/jenkins/lookup3.*" }
+		buildoptions { "-w" }
 
 	project "json"
 		kind "StaticLib"
 		files { BASEDIR .. "contrib/json/json*" }
+		buildoptions { "-w" }
 
 	project "lua"
 		LIBDIR = BASEDIR .. "contrib/lua/"
@@ -126,11 +128,13 @@ solution "P3"
 		files { LIBDIR .. "*.h", LIBDIR .. "*.c" }
 		--exclude command line compiler
 		excludes { LIBDIR .. "lua.c", LIBDIR .. "luac.c" }
+		buildoptions { "-w" }
 
 	project "entityx"
 		LIBDIR = BASEDIR .. "contrib/entityx/"
 		kind "StaticLib"
 		files { LIBDIR .. "**.h", LIBDIR .. "**.cc" }
+		buildoptions { "-w" }
 
 	--main application
 	project "p3"

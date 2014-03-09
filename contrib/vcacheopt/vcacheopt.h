@@ -1,3 +1,4 @@
+#pragma GCC system_header
 /*
  * vcacheopt.h - Vertex Cache Optimizer
  * Copyright 2009 Michael Georgoulpoulos <mgeorgoulopoulos at gmail>
