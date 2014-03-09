@@ -48,6 +48,8 @@ void Scene::Render()
 	const Uint32 w = m_renderer->GetWindow()->GetWidth();
 	const Uint32 h = m_renderer->GetWindow()->GetHeight();
 
+	std::sort(m_cameras.begin(), m_cameras.end(), [](Camera* a, Camera* b) { return a->zOrder < b->zOrder; });
+
 	for (auto cam : m_cameras) {
 		const float aspect = (cam->viewport.z * w) / (cam->viewport.w * h);
 		m_renderer->SetViewport(cam->viewport.x * w, cam->viewport.y * h, cam->viewport.z * w, cam->viewport.w * h);
@@ -67,7 +69,7 @@ void Scene::Render()
 
 	//restore expectations
 	m_renderer->SetViewport(0, 0, w, h);
-	//m_renderer->SetScissor(true, vector2f(0.f), vector2f(w, h));
+	m_renderer->SetScissor(true, vector2f(0.f), vector2f(w, h));
 }
 
 void Scene::AddCamera(Camera* c)
