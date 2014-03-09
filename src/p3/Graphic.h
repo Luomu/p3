@@ -1,4 +1,8 @@
 #pragma once
+#include "graphics/Renderer.h"
+#include "graphics/Material.h"
+#include "graphics/VertexBuffer.h"
+#include "graphics/RenderState.h"
 
 namespace p3
 {
@@ -8,7 +12,8 @@ namespace p3
  */
 class Graphic
 {
-	virtual ~Graphic();
-	//virtual void SomeSortOfRenderMethod()
+public:
+	virtual ~Graphic() { }
+	virtual void Render() = 0;
 };
 }

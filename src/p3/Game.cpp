@@ -41,6 +41,8 @@ void Game::Init(const std::map<std::string, std::string>& options)
 	if (SDL_Init(sdlInitFlags) < 0)
 		Error("SDL initialization failed: %s\n", SDL_GetError());
 
+	m_rng.seed(time(0));
+
 	Graphics::Settings vs = ReadVideoSettings(GetConfig());
 	vs.title = "P3";
 	m_renderer.reset(Graphics::Init(vs));

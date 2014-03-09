@@ -14,7 +14,11 @@ Sim::Sim()
 	m_entities.reset(new entityx::EntityManager(m_eventManager));
 
 	//ZZZ this seems uncertain
-	m_scene = new Scene(p3::game->GetRenderer(), m_entities, m_eventManager);
+	auto renderer = p3::game->GetRenderer();
+	m_scene = new Scene(renderer, m_entities, m_eventManager);
+
+	m_starfield = new StarfieldGraphic(renderer, p3::game->GetRNG());
+	m_scene->AddGraphic(m_starfield, Scene::RenderBin::BACKGROUND);
 
 	m_dynamicsSystem.reset(new DynamicsSystem());
 	m_inputSystem.reset(new PlayerInputSystem());
@@ -54,6 +58,7 @@ Sim::Sim()
 
 Sim::~Sim()
 {
+	delete m_starfield;
 	delete m_scene;
 }
 

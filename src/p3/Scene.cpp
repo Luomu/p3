@@ -60,11 +60,19 @@ void Scene::Render()
 		m_renderer->ClearScreen();
 		m_renderer->SetPerspectiveProjection(cam->fovY, aspect, cam->nearZ, cam->farZ);
 
+		m_renderer->SetTransform(matrix4x4f(1.f));
+		for (auto g : m_bgGraphics)
+			g->Render();
+
+		m_renderer->EnableFramebufferSRGB(true);
+
 		Graphics::Light dl(Graphics::Light::LIGHT_DIRECTIONAL,
 		                   vector3f(0.f, 1.f, 1.f).Normalized(), Color(255), Color(255));
 		m_renderer->SetLights(1, &dl);
 
 		m_modelRenderSystem->update(m_entities, m_events, 0);
+
+		m_renderer->EnableFramebufferSRGB(false);
 	}
 
 	//restore expectations
@@ -75,7 +83,6 @@ void Scene::Render()
 void Scene::AddCamera(Camera* c)
 {
 	m_cameras.push_back(c);
-	//sort
 }
 
 void Scene::RemoveCamera(Camera* c)
@@ -100,14 +107,22 @@ void Scene::RemoveLight(Graphics::Light* l)
 	m_lights.erase(l);
 }
 
-void Scene::AddGraphic(Graphic*, RenderBin)
+void Scene::AddGraphic(Graphic* g, RenderBin bin)
 {
+	auto gb = &m_graphics;
+	if (bin == RenderBin::BACKGROUND)
+		gb = &m_bgGraphics;
 
+	gb->push_back(g);
 }
 
-void Scene::RemoveGraphic(Graphic*, RenderBin)
+void Scene::RemoveGraphic(Graphic* g, RenderBin bin)
 {
+	auto gb = &m_graphics;
+	if (bin == RenderBin::BACKGROUND)
+		gb = &m_bgGraphics;
 
+	gb->erase(std::remove_if(gb->begin(), gb->end(), [g](Graphic* x) { return x == g; }), gb->end());
 }
 
 void Scene::receive(const entityx::ComponentAddedEvent<CameraComponent> &ev)

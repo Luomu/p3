@@ -5,6 +5,7 @@
 #include "ui/Context.h"
 #include "pi/ModelCache.h"
 #include "pi/LuaConsole.h"
+#include "pi/Random.h"
 
 namespace p3
 {
@@ -19,6 +20,7 @@ public:
 	Sim* GetSim() const { return m_sim; }
 	UI::Context* GetUI() const { return m_ui.Get(); }
 	ModelCache* GetModelCache() const { return m_modelCache.get(); }
+	Random& GetRNG() { return m_rng; }
 
 private:
 	void HandleEvents();
@@ -30,5 +32,6 @@ private:
 	RefCountedPtr<UI::Context> m_ui;
 	UI::Label* m_fpsLabel;
 	Sim* m_sim;
+	Random m_rng;
 };
 }

@@ -860,4 +860,9 @@ bool RendererGL2::IsGLExtensionSupported(const std::string& name)
 	return SDL_GL_ExtensionSupported(name.c_str());
 }
 
+void RendererGL2::EnableFramebufferSRGB(bool b)
+{
+	b ? glEnable(GL_FRAMEBUFFER_SRGB) : glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
 }

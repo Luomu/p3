@@ -3,6 +3,7 @@
 #include "p3/EntitySystem.h"
 #include "p3/DynamicsSystem.h"
 #include "p3/PlayerInputSystem.h"
+#include "p3/StarfieldGraphic.h"
 
 namespace p3 {
 
@@ -41,5 +42,8 @@ private:
 
 	//run between sim::execute and scene::render
 	ent_ptr<TransInterpSystem> m_transInterpSystem;
+
+	//some gfx
+	StarfieldGraphic* m_starfield;
 };
 }

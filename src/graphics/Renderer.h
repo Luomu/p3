@@ -137,6 +137,9 @@ public:
 	virtual void Translate( const float x, const float y, const float z ) = 0;
 	virtual void Scale( const float x, const float y, const float z ) = 0;
 
+	//likely a placeholder
+	virtual void EnableFramebufferSRGB(bool) { }
+
 	// take a ticket representing the current renderer state. when the ticket
 	// is deleted, the renderer state is restored
 	// XXX state must die
