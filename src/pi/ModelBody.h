@@ -33,12 +33,9 @@ public:
 
 	void SetModel(const char *modelName);
 
-	void RenderModel(Graphics::Renderer *r, const Camera *camera, const vector3d &viewCoords, const matrix4x4d &viewTransform, const bool setLighting=true);
+	void RenderModel(Graphics::Renderer *r, const Camera *camera, const vector3d &viewCoords, const matrix4x4d &viewTransform);
 
 	virtual void TimeStepUpdate(const float timeStep);
-
-protected:
-	void SetLighting(Graphics::Renderer *r, const Camera *camera, std::vector<Graphics::Light> &oldLights, Color &oldAmbient);
 
 private:
 	void RebuildCollisionMesh();

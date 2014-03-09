@@ -75,32 +75,6 @@ public:
 	void Update();
 	void Draw(const Body *excludeBody = nullptr);
 
-	// camera-specific light with attached source body
-	class LightSource {
-	public:
-		LightSource(const Body *b, Graphics::Light light) : m_body(b), m_light(light) {}
-
-		const Body *GetBody() const { return m_body; }
-		const Graphics::Light &GetLight() const { return m_light; }
-
-	private:
-		const Body *m_body;
-		Graphics::Light m_light;
-	};
-
-	struct Shadow {
-		int occultedLight;
-		vector3d centre;
-		float srad;
-		float lrad;
-
-		bool operator< (const Shadow& other) const { return srad/lrad < other.srad/other.lrad; }
-	};
-
-	// lights with properties in camera space
-	const std::vector<LightSource> &GetLightSources() const { return m_lightSources; }
-	const int GetNumLightSources() const { return m_lightSources.size(); }
-
 private:
 	RefCountedPtr<CameraContext> m_context;
 	Graphics::Renderer *m_renderer;
@@ -147,7 +121,6 @@ private:
 	};
 
 	std::list<BodyAttrs> m_sortedBodies;
-	std::vector<LightSource> m_lightSources;
 };
 
 #endif

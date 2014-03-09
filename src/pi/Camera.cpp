@@ -90,30 +90,6 @@ Camera::Camera(RefCountedPtr<CameraContext> context, Graphics::Renderer *rendere
 	m_billboardMaterial->texture0 = Graphics::TextureBuilder::Billboard("textures/planet_billboard.png").GetOrCreateTexture(m_renderer, "billboard");
 }
 
-static void position_system_lights(Frame *camFrame, Frame *frame, std::vector<Camera::LightSource> &lights)
-{
-	PROFILE_SCOPED()
-	if (lights.size() > 3) return;
-
-	SystemBody *body = frame->GetSystemBody();
-	// IsRotFrame check prevents double counting
-	if (body && !frame->IsRotFrame() && (body->GetSuperType() == SystemBody::SUPERTYPE_STAR)) {
-		vector3d lpos = frame->GetPositionRelTo(camFrame);
-		const double dist = lpos.Length() / AU;
-		lpos *= 1.0/dist; // normalize
-
-		const Uint8 *col = StarSystem::starRealColors[body->GetType()];
-
-		const Color lightCol(col[0], col[1], col[2], 0);
-		vector3f lightpos(lpos.x, lpos.y, lpos.z);
-		lights.push_back(Camera::LightSource(frame->GetBody(), Graphics::Light(Graphics::Light::LIGHT_DIRECTIONAL, lightpos, lightCol, lightCol)));
-	}
-
-	for (Frame* kid : frame->GetChildren()) {
-		position_system_lights(camFrame, kid, lights);
-	}
-}
-
 void Camera::Update()
 {
 	Frame *camFrame = m_context->GetCamFrame();
@@ -186,53 +162,7 @@ void Camera::Draw(const Body *excludeBody)
 	Frame::GetFrameTransform(Pi::game->GetSpace()->GetRootFrame(), camFrame, trans2bg);
 	trans2bg.ClearToRotOnly();
 
-	// Pick up to four suitable system light sources (stars)
-	m_lightSources.clear();
-	m_lightSources.reserve(4);
-	position_system_lights(camFrame, Pi::game->GetSpace()->GetRootFrame(), m_lightSources);
-
-	if (m_lightSources.empty()) {
-		// no lights means we're somewhere weird (eg hyperspace). fake one
-		const Color col(255);
-		m_lightSources.push_back(LightSource(0, Graphics::Light(Graphics::Light::LIGHT_DIRECTIONAL, vector3f(0.f), col, col)));
-	}
-
-	//fade space background based on atmosphere thickness and light angle
-	float bgIntensity = 1.f;
-	if (camFrame->GetParent() && camFrame->GetParent()->IsRotFrame()) {
-		//check if camera is near a planet
-		Body *camParentBody = camFrame->GetParent()->GetBody();
-		if (camParentBody && camParentBody->IsType(Object::PLANET)) {
-			Planet *planet = static_cast<Planet*>(camParentBody);
-			const vector3f relpos(planet->GetInterpPositionRelTo(camFrame));
-			double altitude(relpos.Length());
-			double pressure, density;
-			planet->GetAtmosphericState(altitude, &pressure, &density);
-			if (pressure >= 0.001)
-			{
-				//go through all lights to calculate something resembling light intensity
-				float angle = 0.f;
-				for(std::vector<LightSource>::const_iterator it = m_lightSources.begin();
-					it != m_lightSources.end(); ++it) {
-					const vector3f lightDir(it->GetLight().GetPosition().Normalized());
-					angle += std::max(0.f, lightDir.Dot(-relpos.Normalized())) * (it->GetLight().GetDiffuse().GetLuminance() / 255.0f);
-				}
-				//calculate background intensity with some hand-tweaked fuzz applied
-				bgIntensity = Clamp(1.f - std::min(1.f, powf(density, 0.25f)) * (0.3f + powf(angle, 0.25f)), 0.f, 1.f);
-			}
-		}
-	}
-
-	Pi::game->GetSpace()->GetBackground()->SetIntensity(bgIntensity);
 	Pi::game->GetSpace()->GetBackground()->Draw(trans2bg);
-
-	{
-		std::vector<Graphics::Light> rendererLights;
-		rendererLights.reserve(m_lightSources.size());
-		for (size_t i = 0; i < m_lightSources.size(); i++)
-			rendererLights.push_back(m_lightSources[i].GetLight());
-		m_renderer->SetLights(rendererLights.size(), &rendererLights[0]);
-	}
 
 	for (std::list<BodyAttrs>::iterator i = m_sortedBodies.begin(); i != m_sortedBodies.end(); ++i) {
 		BodyAttrs *attrs = &(*i);

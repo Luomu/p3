@@ -123,7 +123,7 @@ namespace Profiler {
 		inline void Unpause( u64 curticks ) { started = curticks; paused = false; }
 		inline void Unpause() { Unpause( getticks() ); }
 		inline void Pause( u64 curticks ) { ticks += ( curticks - started ); paused = true; }
-		inline void Pause() { Pause( getticks() ); }		
+		inline void Pause() { Pause( getticks() ); }
 		inline void Start() { ++calls; started = getticks(); }
 		inline void Stop() { ticks += ( getticks() - started ); }
 		inline void Reset() { ticks = started = calls = 0; paused = false; }
@@ -147,7 +147,7 @@ namespace Profiler {
 	#else
 			__asm cpuid;
 	#endif
-			return getticks();			
+			return getticks();
 		}
 
 	#if defined(__GNUC__)
@@ -201,7 +201,7 @@ namespace Profiler {
 		ScopedThread( const char *name ) { PROFILE_THREAD_START_RAW( name ); }
 		~ScopedThread() { PROFILE_THREAD_STOP() }
 	};
-}; // namespace Profiler
+} // namespace Profiler
 
 
 struct ScopedTimer {

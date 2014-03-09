@@ -244,40 +244,8 @@ void ModelBody::MoveGeoms(const matrix4x4d &m, const vector3d &p)
 	}
 }
 
-// setLighting: set renderer lights according to current position and sun
-// positions. Original lighting is passed back in oldLights, oldAmbient, and
-// should be reset after rendering with ModelBody::ResetLighting.
-void ModelBody::SetLighting(Graphics::Renderer *r, const Camera *camera, std::vector<Graphics::Light> &oldLights, Color &oldAmbient) {
-	std::vector<Graphics::Light> newLights;
-	double ambient = 0.2;
-	const std::vector<Camera::LightSource> &lightSources = camera->GetLightSources();
-	newLights.reserve(lightSources.size());
-	oldLights.reserve(lightSources.size());
-	for(size_t i = 0; i < lightSources.size(); i++) {
-		Graphics::Light light(lightSources[i].GetLight());
-
-		oldLights.push_back(light);
-
-		Color c = light.GetDiffuse();
-		Color cs = light.GetSpecular();
-		light.SetDiffuse(c);
-		light.SetSpecular(cs);
-
-		newLights.push_back(light);
-	}
-
-	oldAmbient = r->GetAmbientColor();
-	r->SetAmbientColor(Color(ambient*255));
-	r->SetLights(newLights.size(), &newLights[0]);
-}
-
-void ModelBody::RenderModel(Graphics::Renderer *r, const Camera *camera, const vector3d &viewCoords, const matrix4x4d &viewTransform, const bool setLighting)
+void ModelBody::RenderModel(Graphics::Renderer *r, const Camera *camera, const vector3d &viewCoords, const matrix4x4d &viewTransform)
 {
-	std::vector<Graphics::Light> oldLights;
-	Color oldAmbient;
-	if (setLighting)
-		SetLighting(r, camera, oldLights, oldAmbient);
-
 	matrix4x4d m2 = GetInterpOrient();
 	m2.SetTranslate(GetInterpPosition());
 	matrix4x4d t = viewTransform * m2;
