@@ -19,6 +19,7 @@ bool WindowSDL::CreateWindowAndContext(const char *name, int w, int h, bool full
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, samples);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
 
 	// need full 32-bit color
 	// (need an alpha channel because of the way progress bars are drawn)

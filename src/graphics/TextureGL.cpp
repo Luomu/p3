@@ -13,6 +13,8 @@ inline GLint GLInternalFormat(TextureFormat format) {
 	switch (format) {
 		case TEXTURE_RGB_888: return GL_RGB;
 		case TEXTURE_RGBA_8888: return GL_RGBA;
+		case TEXTURE_SRGB_888: return GL_SRGB8;
+		case TEXTURE_SRGBA_8888: return GL_SRGB8_ALPHA8;
 		case TEXTURE_LUMINANCE_ALPHA_88: return GL_LUMINANCE_ALPHA;
 		case TEXTURE_INTENSITY_8:  return GL_INTENSITY;
 		case TEXTURE_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
@@ -28,6 +30,8 @@ inline GLint GLCompressedInternalFormat(TextureFormat format) {
 	switch (format) {
 		case TEXTURE_RGBA_8888: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		case TEXTURE_RGB_888:  return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+		case TEXTURE_SRGBA_8888: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+		case TEXTURE_SRGB_888: return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
 		case TEXTURE_LUMINANCE_ALPHA_88: return GL_LUMINANCE_ALPHA;
 		case TEXTURE_INTENSITY_8:  return GL_INTENSITY;
 		case TEXTURE_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
@@ -38,8 +42,12 @@ inline GLint GLCompressedInternalFormat(TextureFormat format) {
 
 inline GLint GLImageFormat(TextureFormat format) {
 	switch (format) {
-		case TEXTURE_RGBA_8888: return GL_RGBA;
-		case TEXTURE_RGB_888:  return GL_RGB;
+		case TEXTURE_RGBA_8888:
+		case TEXTURE_SRGBA_8888:
+			return GL_RGBA;
+		case TEXTURE_RGB_888:
+		case TEXTURE_SRGB_888:
+			return GL_RGB;
 		case TEXTURE_LUMINANCE_ALPHA_88: return GL_LUMINANCE_ALPHA;
 		case TEXTURE_INTENSITY_8:  return GL_LUMINANCE;
 		case TEXTURE_DXT5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;

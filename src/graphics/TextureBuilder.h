@@ -15,12 +15,15 @@ namespace Graphics {
 class TextureBuilder {
 public:
 	TextureBuilder(const SDLSurfacePtr &surface, TextureSampleMode sampleMode = LINEAR_CLAMP, bool generateMipmaps = false, bool potExtend = false, bool forceRGBA = true, bool compressTextures = true);
-	TextureBuilder(const std::string &filename, TextureSampleMode sampleMode = LINEAR_CLAMP, bool generateMipmaps = false, bool potExtend = false, bool forceRGBA = true, bool compressTextures = true, TextureType textureType = TEXTURE_2D);
+	TextureBuilder(const std::string &filename, TextureSampleMode sampleMode = LINEAR_CLAMP, bool generateMipmaps = false, bool potExtend = false, bool forceRGBA = true, bool compressTextures = true, bool srgb = false, TextureType textureType = TEXTURE_2D);
 	~TextureBuilder();
 
 	// convenience constructors for common texture types
 	static TextureBuilder Model(const std::string &filename) {
 		return TextureBuilder(filename, LINEAR_REPEAT, true, false, false, true);
+	}
+	static TextureBuilder ModelSRGB(const std::string &filename) {
+		return TextureBuilder(filename, LINEAR_REPEAT, true, false, false, true, true);
 	}
 	static TextureBuilder Billboard(const std::string &filename) {
 		return TextureBuilder(filename, LINEAR_CLAMP, true, false, false, true);
@@ -65,6 +68,7 @@ private:
 
 	TextureSampleMode m_sampleMode;
 	bool m_generateMipmaps;
+	bool m_srgb;
 
 	bool m_potExtend;
 	bool m_forceRGBA;

@@ -48,7 +48,7 @@ void BaseLoader::ConvertMaterialDefinition(const MaterialDefinition &mdef)
 		mat->diffuse.a = (float(mdef.opacity) / 100.f) * 255;
 
 	if (!diffTex.empty())
-		mat->texture0 = Graphics::TextureBuilder::Model(diffTex).GetOrCreateTexture(m_renderer, "model");
+		mat->texture0 = Graphics::TextureBuilder::ModelSRGB(diffTex).GetOrCreateTexture(m_renderer, "model");
 	else
 		mat->texture0 = Graphics::TextureBuilder::GetWhiteTexture(m_renderer);
 	if (!specTex.empty())

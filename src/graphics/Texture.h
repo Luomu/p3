@@ -14,6 +14,8 @@ enum TextureFormat {
 
 	TEXTURE_RGBA_8888,
 	TEXTURE_RGB_888,
+	TEXTURE_SRGB_888,
+	TEXTURE_SRGBA_8888,
 
 	//luminance/intensity formats are deprecated in opengl 3+
 	//so we might remove them someday

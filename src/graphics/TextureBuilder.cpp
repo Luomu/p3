@@ -10,15 +10,21 @@
 
 // XXX SDL2 can all this be replaced with SDL_GL_BindTexture?
 
-namespace Graphics {
+namespace Graphics
+{
 
-TextureBuilder::TextureBuilder(const SDLSurfacePtr &surface, TextureSampleMode sampleMode, bool generateMipmaps, bool potExtend, bool forceRGBA, bool compressTextures) :
-    m_surface(surface), m_sampleMode(sampleMode), m_generateMipmaps(generateMipmaps), m_potExtend(potExtend), m_forceRGBA(forceRGBA), m_compressTextures(compressTextures), m_textureType(TEXTURE_2D), m_prepared(false)
+TextureBuilder::TextureBuilder(const SDLSurfacePtr& surface, TextureSampleMode sampleMode, bool generateMipmaps, bool potExtend, bool forceRGBA, bool compressTextures) :
+	m_surface(surface), m_sampleMode(sampleMode), m_generateMipmaps(generateMipmaps), m_potExtend(potExtend), m_forceRGBA(forceRGBA),
+	m_compressTextures(compressTextures), m_textureType(TEXTURE_2D), m_srgb(false), m_prepared(false)
 {
 }
 
-TextureBuilder::TextureBuilder(const std::string &filename, TextureSampleMode sampleMode, bool generateMipmaps, bool potExtend, bool forceRGBA, bool compressTextures, TextureType textureType) :
-    m_filename(filename), m_sampleMode(sampleMode), m_generateMipmaps(generateMipmaps), m_potExtend(potExtend), m_forceRGBA(forceRGBA), m_compressTextures(compressTextures), m_textureType(textureType), m_prepared(false)
+TextureBuilder::TextureBuilder(const std::string& filename, TextureSampleMode sampleMode,
+                               bool generateMipmaps, bool potExtend, bool forceRGBA, bool compressTextures,
+                               bool srgb, TextureType textureType) :
+	m_filename(filename), m_sampleMode(sampleMode), m_generateMipmaps(generateMipmaps),
+	m_potExtend(potExtend), m_forceRGBA(forceRGBA), m_compressTextures(compressTextures),
+	m_textureType(textureType), m_srgb(srgb), m_prepared(false)
 {
 }
 
@@ -57,29 +63,29 @@ static SDL_PixelFormat pixelFormatRGB = {
 	0                                   // alpha
 };
 
-static inline bool GetTargetFormat(const SDL_PixelFormat *sourcePixelFormat, TextureFormat *targetTextureFormat, SDL_PixelFormat **targetPixelFormat, bool forceRGBA)
+static inline bool GetTargetFormat(const SDL_PixelFormat *sourcePixelFormat, TextureFormat *targetTextureFormat, SDL_PixelFormat **targetPixelFormat, bool forceRGBA, bool srgb)
 {
 	if (!forceRGBA && sourcePixelFormat->BytesPerPixel == pixelFormatRGB.BytesPerPixel &&
 			sourcePixelFormat->Rmask == pixelFormatRGB.Rmask && sourcePixelFormat->Bmask == pixelFormatRGB.Bmask && sourcePixelFormat->Gmask == pixelFormatRGB.Gmask) {
-		*targetTextureFormat = TEXTURE_RGB_888;
+		*targetTextureFormat = srgb ? TEXTURE_SRGB_888 : TEXTURE_RGB_888;
 		*targetPixelFormat = &pixelFormatRGB;
 		return true;
 	}
 
 	if (sourcePixelFormat->BytesPerPixel == pixelFormatRGBA.BytesPerPixel &&
 			sourcePixelFormat->Rmask == pixelFormatRGBA.Rmask && sourcePixelFormat->Bmask == pixelFormatRGBA.Bmask && sourcePixelFormat->Gmask == pixelFormatRGBA.Gmask) {
-		*targetTextureFormat = TEXTURE_RGBA_8888;
+		*targetTextureFormat = srgb ? TEXTURE_SRGBA_8888 : TEXTURE_RGBA_8888;
 		*targetPixelFormat = &pixelFormatRGBA;
 		return true;
 	}
 
 	if (!forceRGBA && sourcePixelFormat->BytesPerPixel == 3) {
-		*targetTextureFormat = TEXTURE_RGB_888;
+		*targetTextureFormat = srgb ? TEXTURE_SRGB_888 : TEXTURE_RGB_888;
 		*targetPixelFormat = &pixelFormatRGB;
 		return false;
 	}
 
-	*targetTextureFormat = TEXTURE_RGBA_8888;
+	*targetTextureFormat = srgb ? TEXTURE_SRGBA_8888 : TEXTURE_RGBA_8888;
 	*targetPixelFormat = &pixelFormatRGBA;
 	return false;
 }
@@ -98,7 +104,7 @@ void TextureBuilder::PrepareSurface()
 	unsigned int virtualWidth, actualWidth, virtualHeight, actualHeight, numberOfMipMaps = 0, numberOfImages = 1;
 	if( m_surface ) {
 		SDL_PixelFormat *targetPixelFormat;
-		bool needConvert = !GetTargetFormat(m_surface->format, &targetTextureFormat, &targetPixelFormat, m_forceRGBA);
+		bool needConvert = !GetTargetFormat(m_surface->format, &targetTextureFormat, &targetPixelFormat, m_forceRGBA, m_srgb);
 
 		if (needConvert) {
 			if(m_textureType == TEXTURE_2D) {
