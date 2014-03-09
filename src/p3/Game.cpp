@@ -8,6 +8,7 @@
 #include "pi/EnumStrings.h"
 #include "p3/Scene.h"
 #include "p3/KeyBindings.h"
+#include "pi/Stringf.h"
 
 //Lua API
 #include "p3/LuaEngine.h"
@@ -83,14 +84,19 @@ void Game::Run()
 	LuaEvent::Emit();
 
 	GetUI()->DropAllLayers();
-	auto w = GetUI()->CallTemplate("Test");
-	GetUI()->GetTopLayer()->SetInnerWidget(w);
+	m_fpsLabel = GetUI()->Label("16.67");
+	GetUI()->GetTopLayer()->SetInnerWidget(m_fpsLabel);
 
 	//http://gafferongames.com/game-physics/fix-your-timestep/
 	double currentTime = 0.001 * double(SDL_GetTicks());
 	double accumulator = m_sim->GetTimeStep();
 	double gameTickAlpha = 0.0;
 	double frameTime = 0.0;
+
+	//frame timing
+	double lastStatsTime = currentTime;
+	Uint32 frameCount = 0;
+
 	while (m_sim->IsRunning()) {
 		double newTime = 0.001 * double(SDL_GetTicks());
 		frameTime = newTime - currentTime;
@@ -98,6 +104,8 @@ void Game::Run()
 			frameTime = 0.25;
 		currentTime = newTime;
 		accumulator += frameTime * m_sim->GetTimeAccelRate();
+
+		frameCount++;
 
 		const double step = m_sim->GetTimeStep();
 		if (step > 0.0) { //pause check
@@ -132,6 +140,15 @@ void Game::Run()
 
 		//if (Pi::game->UpdateTimeAccel())
 		//	accumulator = 0; // fix for huge pauses 10000x -> 1x
+
+		if (newTime - lastStatsTime > 1.0) {
+			m_fpsLabel->SetText(stringf("%0{f.2}", 1000.f / frameCount));
+			frameCount = 0;
+			if (newTime - lastStatsTime > 1.2)
+				lastStatsTime = newTime;
+			else
+				lastStatsTime += 1.0;
+		}
 	}
 
 	delete m_sim;

@@ -28,6 +28,7 @@ private:
 	std::unique_ptr<LuaConsole> m_console;
 	std::unique_ptr<ModelCache> m_modelCache;
 	RefCountedPtr<UI::Context> m_ui;
+	UI::Label* m_fpsLabel;
 	Sim* m_sim;
 };
 }
