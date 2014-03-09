@@ -15,7 +15,7 @@ namespace p3
  *   registered/unregistered when game entity
  *   components are added/removed
  */
-class Scene
+class Scene : public entityx::Receiver<Scene>
 {
 public:
 	enum class RenderBin
@@ -34,6 +34,9 @@ public:
 	void RemoveLight(Graphics::Light*);
 	void AddGraphic(Graphic*, RenderBin);
 	void RemoveGraphic(Graphic*, RenderBin);
+
+	void receive(const entityx::ComponentAddedEvent<CameraComponent>&);
+	void receive(const entityx::ComponentRemovedEvent<CameraComponent>&);
 
 private:
 	Graphics::Renderer* m_renderer;

@@ -36,6 +36,9 @@ Scene::Scene(Graphics::Renderer* r, ent_ptr<EntityManager> em, ent_ptr<EventMana
 	, m_events(ev)
 {
 	m_modelRenderSystem.reset(new ModelRenderSystem());
+
+	ev->subscribe<entityx::ComponentAddedEvent<CameraComponent>>(*this);
+	ev->subscribe<entityx::ComponentRemovedEvent<CameraComponent>>(*this);
 }
 
 void Scene::Render()
@@ -103,6 +106,16 @@ void Scene::AddGraphic(Graphic*, RenderBin)
 void Scene::RemoveGraphic(Graphic*, RenderBin)
 {
 
+}
+
+void Scene::receive(const entityx::ComponentAddedEvent<CameraComponent> &ev)
+{
+	AddCamera(ev.component->camera.get());
+}
+
+void Scene::receive(const entityx::ComponentRemovedEvent<CameraComponent> &ev)
+{
+	RemoveCamera(ev.component->camera.get());
 }
 
 }

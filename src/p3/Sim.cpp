@@ -28,7 +28,6 @@ Sim::Sim()
 		camc->camera.reset(new Camera());
 		camc->camera->clearColor.r = 255;
 		camc->camera->viewport = vector4f(0.f, 0.f, 0.5f, 1.f);
-		m_scene->AddCamera(camc->camera.get());
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>();
 	}
@@ -37,7 +36,6 @@ Sim::Sim()
 		ent_ptr<CameraComponent> camc(new CameraComponent());
 		camc->camera.reset(new Camera());
 		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 1.f);
-		m_scene->AddCamera(camc->camera.get());
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>();
 	}
