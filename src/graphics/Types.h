@@ -68,6 +68,11 @@ enum FaceCullMode {
 	CULL_NONE
 };
 
+enum class Projection {
+	PERSPECTIVE,
+	ORTHOGRAPHIC
+};
+
 }
 
 #endif // GRAPHICS_TYPES_H

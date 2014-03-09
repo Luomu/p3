@@ -40,19 +40,69 @@ Scene::Scene(Graphics::Renderer* r, ent_ptr<EntityManager> em, ent_ptr<EventMana
 
 void Scene::Render()
 {
+	m_renderer->SetAmbientColor(Color(0, 0, 0, 0));
+
 	const Uint32 w = m_renderer->GetWindow()->GetWidth();
 	const Uint32 h = m_renderer->GetWindow()->GetHeight();
+
+	for (auto cam : m_cameras) {
+		const float aspect = (cam->viewport.z * w) / (cam->viewport.w * h);
+		m_renderer->SetViewport(cam->viewport.x * w, cam->viewport.y * h, cam->viewport.z * w, cam->viewport.w * h);
+		m_renderer->SetScissor(true,
+		                       vector2f(cam->viewport.x * w, cam->viewport.y * h),
+		                       vector2f(cam->viewport.z * w, cam->viewport.w * h));
+		m_renderer->SetClearColor(cam->clearColor);
+		m_renderer->ClearScreen();
+		m_renderer->SetPerspectiveProjection(cam->fovY, aspect, cam->nearZ, cam->farZ);
+
+		Graphics::Light dl(Graphics::Light::LIGHT_DIRECTIONAL,
+		                   vector3f(0.f, 1.f, 1.f).Normalized(), Color(255), Color(255));
+		m_renderer->SetLights(1, &dl);
+
+		m_modelRenderSystem->update(m_entities, m_events, 0);
+	}
+
+	//restore expectations
 	m_renderer->SetViewport(0, 0, w, h);
-	m_renderer->SetPerspectiveProjection(45.f, float(w)/h, 0.1f, 1000.f);
-	m_renderer->SetAmbientColor(Color(0,0,0,0));
-	m_renderer->SetClearColor(Color(12, 12, 93, 0));
-	m_renderer->ClearScreen();
+	//m_renderer->SetScissor(true, vector2f(0.f), vector2f(w, h));
+}
 
-	Graphics::Light dl(Graphics::Light::LIGHT_DIRECTIONAL,
-	                   vector3f(0.f, 1.f, 0.f).Normalized(), Color(255), Color(255));
-	m_renderer->SetLights(1, &dl);
+void Scene::AddCamera(Camera* c)
+{
+	m_cameras.push_back(c);
+	//sort
+}
 
-	m_modelRenderSystem->update(m_entities, m_events, 0);
+void Scene::RemoveCamera(Camera* c)
+{
+	auto it = m_cameras.begin();
+	while (it != m_cameras.end()) {
+		if (*it == c) {
+			it = m_cameras.erase(it);
+			continue;
+		}
+		++it;
+	}
+}
+
+void Scene::AddLight(Graphics::Light* l)
+{
+	m_lights.insert(l);
+}
+
+void Scene::RemoveLight(Graphics::Light* l)
+{
+	m_lights.erase(l);
+}
+
+void Scene::AddGraphic(Graphic*, RenderBin)
+{
+
+}
+
+void Scene::RemoveGraphic(Graphic*, RenderBin)
+{
+
 }
 
 }

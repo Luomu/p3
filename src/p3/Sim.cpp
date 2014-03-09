@@ -2,6 +2,7 @@
 #include "p3/Game.h"
 #include "p3/p3.h"
 #include "p3/CoreComponents.h"
+#include "p3/Camera.h"
 #include "p3/Scene.h"
 
 namespace p3 {
@@ -19,6 +20,27 @@ Sim::Sim()
 	m_inputSystem.reset(new PlayerInputSystem());
 	m_thrusterSystem.reset(new ThrusterSystem());
 	m_transInterpSystem.reset(new TransInterpSystem());
+
+	//init camera
+	{
+		Entity camera = m_entities->create();
+		ent_ptr<CameraComponent> camc(new CameraComponent());
+		camc->camera.reset(new Camera());
+		camc->camera->clearColor.r = 255;
+		camc->camera->viewport = vector4f(0.f, 0.f, 0.5f, 1.f);
+		m_scene->AddCamera(camc->camera.get());
+		camera.assign(camc);
+		camera.assign<PosOrientComponent>();
+	}
+	{
+		Entity camera = m_entities->create();
+		ent_ptr<CameraComponent> camc(new CameraComponent());
+		camc->camera.reset(new Camera());
+		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 1.f);
+		m_scene->AddCamera(camc->camera.get());
+		camera.assign(camc);
+		camera.assign<PosOrientComponent>();
+	}
 
 	//init "player"
 	auto model = p3::game->GetModelCache()->FindModel("natrix");
