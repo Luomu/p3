@@ -469,8 +469,6 @@ void SpaceStation::Render(Graphics::Renderer *r, const Camera *camera, const vec
 		Color oldAmbient;
 		SetLighting(r, camera, oldLights, oldAmbient);
 
-		Planet *planet = static_cast<Planet*>(b);
-
 		RenderModel(r, camera, viewCoords, viewTransform, false);
 	}
 }

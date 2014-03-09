@@ -68,14 +68,13 @@ private:
 
 	TextureSampleMode m_sampleMode;
 	bool m_generateMipmaps;
-	bool m_srgb;
 
 	bool m_potExtend;
 	bool m_forceRGBA;
 	bool m_compressTextures;
 	TextureType m_textureType;
-
 	TextureDescriptor m_descriptor;
+	bool m_srgb;
 
 	void PrepareSurface();
 	bool m_prepared;

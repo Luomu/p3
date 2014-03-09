@@ -16,7 +16,7 @@ public:
 	virtual void Run() override;
 
 	Graphics::Renderer* GetRenderer() const { return m_renderer.get(); }
-	Sim* GetSim() const { m_sim; }
+	Sim* GetSim() const { return m_sim; }
 	UI::Context* GetUI() const { return m_ui.Get(); }
 	ModelCache* GetModelCache() const { return m_modelCache.get(); }
 

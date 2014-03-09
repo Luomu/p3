@@ -109,7 +109,7 @@ void Game::Run()
 
 		const double step = m_sim->GetTimeStep();
 		if (step > 0.0) { //pause check
-			int physTicks = 0;
+			Uint32 physTicks = 0;
 			while (accumulator >= step) {
 				if (++physTicks >= MAX_PHYSICS_TICKS) {
 					accumulator = 0.0;

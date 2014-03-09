@@ -250,7 +250,6 @@ void ModelBody::MoveGeoms(const matrix4x4d &m, const vector3d &p)
 void ModelBody::SetLighting(Graphics::Renderer *r, const Camera *camera, std::vector<Graphics::Light> &oldLights, Color &oldAmbient) {
 	std::vector<Graphics::Light> newLights;
 	double ambient = 0.2;
-	double direct = 1.0;
 	const std::vector<Camera::LightSource> &lightSources = camera->GetLightSources();
 	newLights.reserve(lightSources.size());
 	oldLights.reserve(lightSources.size());

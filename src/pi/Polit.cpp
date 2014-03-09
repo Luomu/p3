@@ -114,17 +114,6 @@ void Unserialize(Serializer::Reader &rd)
 	}
 }
 
-/* The drawbacks of stuffing stuff into integers */
-static int GetCrimeIdxFromEnum(enum Crime crime)
-{
-	assert(crime);
-	for (int i = 0; i < 64; ++i) {
-		if (crime & 1) return i;
-		crime = Crime(crime >> 1); // cast needed because this gets promoted to 'int'
-	}
-	return 0;
-}
-
 void NotifyOfCrime(Ship *s, enum Crime crime)
 {
 }

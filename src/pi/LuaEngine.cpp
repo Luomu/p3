@@ -397,7 +397,7 @@ static int l_engine_set_music_muted(lua_State *l)
 {
 	if (lua_isnone(l, 1))
 		return luaL_error(l, "SetMusicMuted takes one boolean argument");
-	const bool muted = lua_toboolean(l, 1);
+	//const bool muted = lua_toboolean(l, 1);
 	return 0;
 }
 

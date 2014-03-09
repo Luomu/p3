@@ -409,17 +409,6 @@ void WorldView::ShowAll()
 	RefreshButtonStateAndVisibility();
 }
 
-static Color get_color_for_warning_meter_bar(float v) {
-	Color c;
-	if (v < 50.0f)
-		c = Color(255,0,0,HUD_ALPHA);
-	else if (v < 75.0f)
-		c = Color(255,128,0,HUD_ALPHA);
-	else
-		c = Color(255,255,0,HUD_ALPHA);
-	return c;
-}
-
 void WorldView::RefreshHyperspaceButton() {
 	if (Pi::player->CanHyperspaceTo(Pi::sectorView->GetHyperspaceTarget()))
 		m_hyperspaceButton->Show();
@@ -768,9 +757,6 @@ void WorldView::Update()
 	m_camera->Update();
 
 	UpdateProjectedObjects();
-
-	const Frame *playerFrame = Pi::player->GetFrame();
-	const Frame *camFrame = m_cameraContext->GetCamFrame();
 
 	// target object under the crosshairs. must be done after
 	// UpdateProjectedObjects() to be sure that m_projectedPos does not have

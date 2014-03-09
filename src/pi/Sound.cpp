@@ -3,7 +3,7 @@
 #include "Sound.h"
 bool Sound::Init()
 {
-
+	return false;
 }
 
 void Sound::Uninit()

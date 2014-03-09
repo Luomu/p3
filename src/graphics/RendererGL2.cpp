@@ -749,6 +749,7 @@ bool RendererGL2::PrintDebugInfo(std::ostream &out)
 	out << "Shading language version: " <<  glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
 
 	//TODO: dump extension list
+	return true;
 }
 
 void RendererGL2::SetMatrixMode(MatrixMode mm)

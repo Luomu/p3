@@ -101,7 +101,7 @@ void TextureBuilder::PrepareSurface()
 	}
 
 	TextureFormat targetTextureFormat;
-	unsigned int virtualWidth, actualWidth, virtualHeight, actualHeight, numberOfMipMaps = 0, numberOfImages = 1;
+	unsigned int virtualWidth, actualWidth, virtualHeight, actualHeight, numberOfMipMaps = 0;
 	if( m_surface ) {
 		SDL_PixelFormat *targetPixelFormat;
 		bool needConvert = !GetTargetFormat(m_surface->format, &targetTextureFormat, &targetPixelFormat, m_forceRGBA, m_srgb);
