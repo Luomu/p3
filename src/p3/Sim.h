@@ -4,6 +4,7 @@
 #include "p3/DynamicsSystem.h"
 #include "p3/PlayerInputSystem.h"
 #include "p3/StarfieldGraphic.h"
+#include "p3/Camera.h"
 
 namespace p3 {
 
@@ -39,6 +40,9 @@ private:
 	ent_ptr<DynamicsSystem> m_dynamicsSystem;
 	ent_ptr<PlayerInputSystem> m_inputSystem;
 	ent_ptr<ThrusterSystem> m_thrusterSystem;
+
+	//updated when?
+	ent_ptr<CameraUpdateSystem> m_cameraUpdateSystem;
 
 	//run between sim::execute and scene::render
 	ent_ptr<TransInterpSystem> m_transInterpSystem;

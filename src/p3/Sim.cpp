@@ -24,17 +24,20 @@ Sim::Sim()
 	m_inputSystem.reset(new PlayerInputSystem());
 	m_thrusterSystem.reset(new ThrusterSystem());
 	m_transInterpSystem.reset(new TransInterpSystem());
+	m_cameraUpdateSystem.reset(new CameraUpdateSystem());
 
 	//init camera
+	//left camera
 	{
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
 		camc->camera.reset(new Camera());
-		camc->camera->clearColor.r = 255;
+		camc->camera->clearColor = Color(0,0,0,0);
 		camc->camera->viewport = vector4f(0.f, 0.f, 0.5f, 1.f);
 		camera.assign(camc);
-		camera.assign<PosOrientComponent>();
+		camera.assign<PosOrientComponent>(vector3d(0,0,-100), matrix3x3d(1.0));
 	}
+	//right camera
 	{
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
@@ -48,7 +51,9 @@ Sim::Sim()
 	auto model = p3::game->GetModelCache()->FindModel("natrix");
 	SDL_assert(model);
 	Entity player = m_entities->create();
-	player.assign<ModelComponent>(model);
+	ref_ptr<ModelGraphic> mc(new ModelGraphic(model));
+	m_scene->AddGraphic(mc.Get());
+	player.assign<GraphicComponent>(mc);
 	player.assign<PosOrientComponent>();
 	player.assign<MassComponent>(10.0);
 	player.assign<DynamicsComponent>();
@@ -71,6 +76,7 @@ void Sim::Execute(double time)
 	m_inputSystem->update(m_entities, m_eventManager, time);
 	m_thrusterSystem->update(m_entities, m_eventManager, time);
 	m_dynamicsSystem->update(m_entities, m_eventManager, time);
+	m_cameraUpdateSystem->update(m_entities, m_eventManager, time);
 
 	if (totalElapsed > 30) {
 		printf("Ran for %fs\n", totalElapsed);

@@ -11,21 +11,16 @@ class ModelRenderSystem : public entityx::System<ModelRenderSystem>
 public:
 	virtual void update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt) override
 	{
-		for (auto entity : em->entities_with_components<ModelComponent, PosOrientComponent>()) {
-			ent_ptr<ModelComponent> mc = entity.component<ModelComponent>();
+		//turn interpTransform into something more renderable
+		for (auto entity : em->entities_with_components<GraphicComponent, PosOrientComponent>()) {
+			ent_ptr<GraphicComponent> gc = entity.component<GraphicComponent>();
 			ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
-
-			matrix4x4f viewMatrix(1.f);
-			viewMatrix.SetTranslate(vector3f(0.f, 0.f, -100.f));
 
 			matrix4x4d modelMatrix = poc->interpOrient;
 			modelMatrix.SetTranslate(poc->interpPos);
 
-			matrix4x4f modelMatrixf;
 			for (Uint32 i = 0; i < 16; i++)
-				modelMatrixf[i] = float(modelMatrix[i]);
-
-			mc->model->Render(viewMatrix * modelMatrixf);
+				gc->graphic->modelTransform[i] = float(modelMatrix[i]);
 		}
 	}
 };
@@ -43,6 +38,9 @@ Scene::Scene(Graphics::Renderer* r, ent_ptr<EntityManager> em, ent_ptr<EventMana
 
 void Scene::Render()
 {
+	//update some transforms in Graphics
+	m_modelRenderSystem->update(m_entities, m_events, 0);
+
 	m_renderer->SetAmbientColor(Color(0, 0, 0, 0));
 
 	const Uint32 w = m_renderer->GetWindow()->GetWidth();
@@ -70,7 +68,8 @@ void Scene::Render()
 		                   vector3f(0.f, 1.f, 1.f).Normalized(), Color(255), Color(255));
 		m_renderer->SetLights(1, &dl);
 
-		m_modelRenderSystem->update(m_entities, m_events, 0);
+		for (auto g : m_graphics)
+			g->Render();
 
 		m_renderer->EnableFramebufferSRGB(false);
 	}

@@ -32,8 +32,8 @@ public:
 	void RemoveCamera(Camera*);
 	void AddLight(Graphics::Light*);
 	void RemoveLight(Graphics::Light*);
-	void AddGraphic(Graphic*, RenderBin);
-	void RemoveGraphic(Graphic*, RenderBin);
+	void AddGraphic(Graphic*, RenderBin = RenderBin::NORMAL);
+	void RemoveGraphic(Graphic*, RenderBin = RenderBin::NORMAL);
 
 	void receive(const entityx::ComponentAddedEvent<CameraComponent>&);
 	void receive(const entityx::ComponentRemovedEvent<CameraComponent>&);

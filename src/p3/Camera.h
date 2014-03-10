@@ -19,10 +19,19 @@ public:
 	float farZ;
 	vector4f viewport; //normalized viewport rectangle x,y,w,h
 	Uint32 zOrder;
+
+	vector3d   pos;
+	matrix3x3d orient;
 };
 
 struct CameraComponent : public entityx::Component<CameraComponent> {
 	std::unique_ptr<Camera> camera;
+};
+
+class CameraUpdateSystem : public entityx::System<CameraUpdateSystem>
+{
+public:
+	void update(ent_ptr<entityx::EntityManager> es, ent_ptr<entityx::EventManager> events, double dt) override;
 };
 
 }

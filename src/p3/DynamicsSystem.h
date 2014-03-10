@@ -17,4 +17,5 @@ class TransInterpSystem : public entityx::System<TransInterpSystem>
 public:
 	void update(ent_ptr<entityx::EntityManager> es, ent_ptr<entityx::EventManager> events, double alpha) override;
 };
+
 }

@@ -2,6 +2,7 @@
 #include "p3/EntitySystem.h"
 #include "scenegraph/Model.h"
 #include "collider/Geom.h"
+#include "p3/Graphic.h"
 
 /**
  * Common components. Can be moved into separate files.
@@ -18,7 +19,11 @@ struct NameComponent : public entityx::Component<NameComponent> {
 
 struct PosOrientComponent : public entityx::Component<PosOrientComponent> {
 	PosOrientComponent()
-		: pos(0.0), orient(1.0), interpPos(0.0), interpOrient(1.0) { }
+		: pos(0.0), orient(1.0), interpPos(0.0), interpOrient(1.0)
+		, oldPos(0.0), oldAngDisplacement(0.0) { }
+	PosOrientComponent(vector3d initialPos, const matrix3x3d& initialOrient)
+		: pos(initialPos), orient(initialOrient), interpPos(initialPos)
+		, interpOrient(initialOrient), oldPos(initialPos), oldAngDisplacement(0.0) {}
 	vector3d pos;
 	matrix3x3d orient;
 
@@ -70,13 +75,12 @@ struct CollisionMeshComponent : public entityx::Component<CollisionMeshComponent
 	Geom* geom;
 };
 
-//has a model for rendering (this is a placeholder)
-struct ModelComponent : public entityx::Component<ModelComponent> {
-	ModelComponent(SceneGraph::Model* m)
-		: model(m)
-	{
-	}
-	SceneGraph::Model* model;
+//contains a generic graphic for rendering
+struct GraphicComponent : public entityx::Component<GraphicComponent> {
+	GraphicComponent(ref_ptr<Graphic> g)
+		: graphic(g) {}
+
+	ref_ptr<Graphic> graphic;
 };
 
 struct PlayerInputComponent : public entityx::Component<PlayerInputComponent> {
