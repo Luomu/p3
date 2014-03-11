@@ -160,6 +160,9 @@ public:
 		MatrixMode m_matrixMode;
 	};
 
+	const matrix4x4d& GetViewMatrix() const { return m_viewMatrix; }
+	void SetViewMatrix(const matrix4x4d& m) { m_viewMatrix = m;    }
+
 protected:
 	int m_width;
 	int m_height;
@@ -167,6 +170,8 @@ protected:
 
 	virtual void PushState() = 0;
 	virtual void PopState() = 0;
+
+	matrix4x4d m_viewMatrix;
 
 private:
 	typedef std::pair<std::string,std::string> TextureCacheKey;

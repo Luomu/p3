@@ -44,14 +44,14 @@ Sim::Sim()
 		camc->camera.reset(new Camera());
 		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 1.f);
 		camera.assign(camc);
-		camera.assign<PosOrientComponent>();
+		camera.assign<PosOrientComponent>(vector3d(0,0,-50), matrix3x3d(1.0));
 	}
 
 	//init "player"
 	auto model = p3::game->GetModelCache()->FindModel("natrix");
 	SDL_assert(model);
 	Entity player = m_entities->create();
-	ref_ptr<ModelGraphic> mc(new ModelGraphic(model));
+	ref_ptr<ModelGraphic> mc(new ModelGraphic(renderer, model));
 	player.assign<GraphicComponent>(mc);
 	player.assign<PosOrientComponent>();
 	player.assign<MassComponent>(10.0);

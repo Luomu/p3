@@ -12,7 +12,6 @@ public:
 	virtual void Render() override;
 
 private:
-	Graphics::Renderer* m_renderer;
 	std::unique_ptr<Graphics::VertexBuffer> m_vertexBuffer;
 	Graphics::RenderState* m_renderState;
 	RefCountedPtr<Graphics::Material> m_material;

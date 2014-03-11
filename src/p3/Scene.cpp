@@ -62,7 +62,10 @@ void Scene::Render()
 		m_renderer->ClearScreen();
 		m_renderer->SetPerspectiveProjection(cam->fovY, aspect, cam->nearZ, cam->farZ);
 
-		m_renderer->SetTransform(matrix4x4f(1.f));
+		matrix4x4d vmd = cam->orient;
+		vmd.SetTranslate(cam->pos);
+		m_renderer->SetViewMatrix(vmd);
+
 		for (auto g : m_bgGraphics)
 			g->Render();
 

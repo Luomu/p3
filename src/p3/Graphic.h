@@ -14,16 +14,21 @@ namespace p3
 class Graphic : public RefCounted
 {
 public:
+	Graphic(Graphics::Renderer* r) : m_renderer(r) { }
 	virtual ~Graphic() { }
 	virtual void Render() = 0;
 
-	matrix4x4f modelTransform;
+	matrix4x4d modelTransform;
+	Graphics::Renderer* m_renderer;
 };
 
 class ModelGraphic : public Graphic
 {
 public:
-	ModelGraphic(SceneGraph::Model* m) : model(m) {}
+	ModelGraphic(Graphics::Renderer* r, SceneGraph::Model* m)
+		: Graphic(r)
+		, model(m)
+	{}
 	virtual void Render() override;
 	SceneGraph::Model* model;
 };

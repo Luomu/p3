@@ -12,7 +12,7 @@ struct StarVert {
 namespace p3
 {
 StarfieldGraphic::StarfieldGraphic(Graphics::Renderer* r, Random& rng)
-	: m_renderer(r)
+	: Graphic(r)
 {
 	Graphics::MaterialDescriptor desc;
 	desc.vertexColors = true;
@@ -51,6 +51,7 @@ StarfieldGraphic::StarfieldGraphic(Graphics::Renderer* r, Random& rng)
 
 void StarfieldGraphic::Render()
 {
+	m_renderer->SetTransform(m_renderer->GetViewMatrix());
 	m_renderer->DrawBuffer(m_vertexBuffer.get(), m_renderState, m_material.Get(), Graphics::POINTS);
 }
 
