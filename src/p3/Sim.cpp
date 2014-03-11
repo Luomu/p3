@@ -52,7 +52,6 @@ Sim::Sim()
 	SDL_assert(model);
 	Entity player = m_entities->create();
 	ref_ptr<ModelGraphic> mc(new ModelGraphic(model));
-	m_scene->AddGraphic(mc.Get());
 	player.assign<GraphicComponent>(mc);
 	player.assign<PosOrientComponent>();
 	player.assign<MassComponent>(10.0);

@@ -5,6 +5,7 @@
 #include "p3/Graphic.h"
 #include "p3/Camera.h"
 #include "graphics/Light.h" //possibly NOOOO
+#include "p3/CoreComponents.h"
 
 namespace p3
 {
@@ -37,6 +38,9 @@ public:
 
 	void receive(const entityx::ComponentAddedEvent<CameraComponent>&);
 	void receive(const entityx::ComponentRemovedEvent<CameraComponent>&);
+	//only non-background graphics are expected to be in components
+	void receive(const entityx::ComponentAddedEvent<GraphicComponent>&);
+	void receive(const entityx::ComponentRemovedEvent<GraphicComponent>&);
 
 private:
 	Graphics::Renderer* m_renderer;

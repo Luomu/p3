@@ -34,6 +34,8 @@ Scene::Scene(Graphics::Renderer* r, ent_ptr<EntityManager> em, ent_ptr<EventMana
 
 	ev->subscribe<entityx::ComponentAddedEvent<CameraComponent>>(*this);
 	ev->subscribe<entityx::ComponentRemovedEvent<CameraComponent>>(*this);
+	ev->subscribe<entityx::ComponentAddedEvent<GraphicComponent>>(*this);
+	ev->subscribe<entityx::ComponentRemovedEvent<GraphicComponent>>(*this);
 }
 
 void Scene::Render()
@@ -46,7 +48,9 @@ void Scene::Render()
 	const Uint32 w = m_renderer->GetWindow()->GetWidth();
 	const Uint32 h = m_renderer->GetWindow()->GetHeight();
 
-	std::sort(m_cameras.begin(), m_cameras.end(), [](Camera* a, Camera* b) { return a->zOrder < b->zOrder; });
+	std::sort(m_cameras.begin(), m_cameras.end(), [](Camera * a, Camera * b) {
+		return a->zOrder < b->zOrder;
+	});
 
 	for (auto cam : m_cameras) {
 		const float aspect = (cam->viewport.z * w) / (cam->viewport.w * h);
@@ -121,17 +125,29 @@ void Scene::RemoveGraphic(Graphic* g, RenderBin bin)
 	if (bin == RenderBin::BACKGROUND)
 		gb = &m_bgGraphics;
 
-	gb->erase(std::remove_if(gb->begin(), gb->end(), [g](Graphic* x) { return x == g; }), gb->end());
+	gb->erase(std::remove_if(gb->begin(), gb->end(), [g](Graphic * x) {
+		return x == g;
+	}), gb->end());
 }
 
-void Scene::receive(const entityx::ComponentAddedEvent<CameraComponent> &ev)
+void Scene::receive(const entityx::ComponentAddedEvent<CameraComponent>& ev)
 {
 	AddCamera(ev.component->camera.get());
 }
 
-void Scene::receive(const entityx::ComponentRemovedEvent<CameraComponent> &ev)
+void Scene::receive(const entityx::ComponentRemovedEvent<CameraComponent>& ev)
 {
 	RemoveCamera(ev.component->camera.get());
+}
+
+void Scene::receive(const entityx::ComponentAddedEvent<GraphicComponent>& ev)
+{
+	AddGraphic(ev.component->graphic.Get());
+}
+
+void Scene::receive(const entityx::ComponentRemovedEvent<GraphicComponent>& ev)
+{
+	RemoveGraphic(ev.component->graphic.Get());
 }
 
 }
