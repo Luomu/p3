@@ -40,8 +40,6 @@ static const float ZOOM_OUT_END = 14.0f;
 
 void Intro::Draw(float _time)
 {
-	Graphics::Renderer::StateTicket ticket(m_renderer);
-
 	m_renderer->SetPerspectiveProjection(55, m_aspectRatio, 1.f, 10000.f);
 	m_renderer->SetTransform(matrix4x4f::Identity());
 
