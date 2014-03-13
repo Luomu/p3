@@ -22,10 +22,25 @@ public:
 
 	vector3d   pos;
 	matrix3x3d orient;
+
+	matrix4x4d viewMatrix;
+
+	void LookAt(vector3d eye, vector3d target, vector3d up);
 };
 
 struct CameraComponent : public entityx::Component<CameraComponent> {
 	std::unique_ptr<Camera> camera;
+};
+
+//This doesn't really have to be limited to cameras!
+struct CameraLookAtComponent : public entityx::Component<CameraLookAtComponent> {
+	CameraLookAtComponent(Entity lookTarget) : target(lookTarget) {}
+	Entity target; //should have a PosOrientComponent
+};
+
+struct AttachToEntityComponent : public entityx::Component<AttachToEntityComponent> {
+	AttachToEntityComponent(Entity tgt) : target(tgt) {}
+	Entity target; //should have a PosOrientComponent
 };
 
 class CameraUpdateSystem : public entityx::System<CameraUpdateSystem>

@@ -26,7 +26,7 @@ KEY_BINDING(pitchDown, "BindPitchDown", Lang::PITCH_DOWN, SDLK_KP_2, 0)
 KEY_BINDING(yawLeft, "BindYawLeft", Lang::YAW_LEFT, SDLK_KP_4, 0)
 KEY_BINDING(yawRight, "BindYawRight", Lang::YAW_RIGHT, SDLK_KP_6, 0)
 KEY_BINDING(rollLeft, "BindRollLeft", Lang::ROLL_LEFT, SDLK_KP_7, 0)
-KEY_BINDING(rollRight, "BindRollRight", Lang::ROLL_RIGHT, SDLK_KP_6, 0)
+KEY_BINDING(rollRight, "BindRollRight", Lang::ROLL_RIGHT, SDLK_KP_9, 0)
 
 BINDING_GROUP(Lang::MISCELLANEOUS)
 KEY_BINDING(toggleLuaConsole, "BindToggleLuaConsole", Lang::TOGGLE_LUA_CONSOLE, SDLK_BACKQUOTE, 0)

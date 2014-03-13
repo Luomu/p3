@@ -12,13 +12,13 @@ void PlayerInputSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> 
 		SDL_assert(tc);
 		tc->linear  = vector3d(0.0);
 		tc->angular = vector3d(0.0);
-		if (KeyBindings::thrustIncrease.IsActive()) tc->linear.z = -1;
-		if (KeyBindings::thrustDecrease.IsActive()) tc->linear.z = +1;
+		if (KeyBindings::thrustIncrease.IsActive()) tc->linear.z -= 100.0;
+		if (KeyBindings::thrustDecrease.IsActive()) tc->linear.z += 100.0;
 
 		vector3d wantAngVel(0.0);
 		if (KeyBindings::yawLeft.IsActive())   wantAngVel.y += 1.0;
-		if (KeyBindings::yawRight.IsActive())  wantAngVel.y += -1.0;
-		if (KeyBindings::pitchDown.IsActive()) wantAngVel.x += -1.0;
+		if (KeyBindings::yawRight.IsActive())  wantAngVel.y -= 1.0;
+		if (KeyBindings::pitchDown.IsActive()) wantAngVel.x -= 1.0;
 		if (KeyBindings::pitchUp.IsActive())   wantAngVel.x += 1.0;
 		if (KeyBindings::rollLeft.IsActive())  wantAngVel.z += 1.0;
 		if (KeyBindings::rollRight.IsActive()) wantAngVel.z -= 1.0;

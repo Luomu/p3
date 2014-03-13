@@ -16,8 +16,10 @@ public:
 			ent_ptr<GraphicComponent> gc = entity.component<GraphicComponent>();
 			ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
 
-			matrix4x4d modelMatrix = poc->interpOrient;
-			modelMatrix.SetTranslate(poc->interpPos);
+			//matrix4x4d modelMatrix = poc->interpOrient;
+			//modelMatrix.SetTranslate(poc->interpPos);
+			matrix4x4d modelMatrix = poc->orient;
+			modelMatrix.SetTranslate(poc->pos);
 
 			for (Uint32 i = 0; i < 16; i++)
 				gc->graphic->modelTransform[i] = float(modelMatrix[i]);
@@ -62,9 +64,7 @@ void Scene::Render()
 		m_renderer->ClearScreen();
 		m_renderer->SetPerspectiveProjection(cam->fovY, aspect, cam->nearZ, cam->farZ);
 
-		matrix4x4d vmd = cam->orient;
-		vmd.SetTranslate(cam->pos);
-		m_renderer->SetViewMatrix(vmd);
+		m_renderer->SetViewMatrix(cam->viewMatrix);
 
 		for (auto g : m_bgGraphics)
 			g->Render();

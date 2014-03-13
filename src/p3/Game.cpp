@@ -54,8 +54,7 @@ void Game::Init(const std::map<std::string, std::string>& options)
 	m_ui.Reset(new UI::Context(Lua::manager,
 	                           GetRenderer(),
 	                           GetRenderer()->GetWindow()->GetWidth(),
-	                           GetRenderer()->GetWindow()->GetHeight(),
-	                           Lang::GetCore().GetLangCode()));
+	                           GetRenderer()->GetWindow()->GetHeight()));
 
 	InitLua();
 
