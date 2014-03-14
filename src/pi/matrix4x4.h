@@ -146,6 +146,27 @@ class matrix4x4 {
 	void Rotate (T ang, T x, T y, T z) {
 		*this = (*this) * RotateMatrix (ang, x, y, z);
 	}
+
+	//Right-handed LookAt view matrix
+	static matrix4x4 LookAt(const vector3<T> &eye, const vector3<T> &tgt, const vector3<T> &up) {
+		matrix4x4 m;
+
+		const vector3d zaxis = (tgt - eye).Normalized();
+		vector3d yaxis = up.Normalized();
+		const vector3d xaxis = zaxis.Cross(yaxis).Normalized();
+		yaxis = xaxis.Cross(zaxis);
+
+		m[0] = xaxis.x; m[1] = yaxis.x; m[2]  = -zaxis.x; m[3]  = 0.0;
+		m[4] = xaxis.y; m[5] = yaxis.y; m[6]  = -zaxis.y; m[7]  = 0.0;
+		m[8] = xaxis.z; m[9] = yaxis.z; m[10] = -zaxis.z; m[11] = 0.0;
+
+		m[12] = -xaxis.Dot(eye);
+		m[13] = -yaxis.Dot(eye);
+		m[14] = zaxis.Dot(eye);
+		m[15] = 1.0;
+
+		return m;
+	}
 	// (x,y,z) must be normalized
 	static matrix4x4 RotateMatrix (T ang, T x, T y, T z) {
 		matrix4x4 m;

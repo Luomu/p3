@@ -24,8 +24,6 @@ public:
 	matrix3x3d orient;
 
 	matrix4x4d viewMatrix;
-
-	void LookAt(vector3d eye, vector3d target, vector3d up);
 };
 
 struct CameraComponent : public entityx::Component<CameraComponent> {

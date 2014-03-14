@@ -18,19 +18,6 @@ Camera::Camera()
 {
 }
 
-void Camera::LookAt(const vector3d eye, const vector3d tgt, const vector3d up)
-{
-	const vector3d zaxis = (eye - tgt).Normalized();
-	const vector3d xaxis = (up.Cross(zaxis)).Normalized();
-	const vector3d yaxis = zaxis.Cross(xaxis);
-
-	orient = matrix3x3d::FromVectors(xaxis, yaxis, zaxis);
-
-	pos.x = -xaxis.Dot(eye);
-	pos.y = -yaxis.Dot(eye);
-	pos.z = -zaxis.Dot(eye);
-}
-
 void CameraUpdateSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt)
 {
 	//copy interp orient/pos to camera pos/orient (BLEARGH)
@@ -43,11 +30,7 @@ void CameraUpdateSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager>
 		if (clc) {
 			auto tgtPoc = clc->target.component<PosOrientComponent>();
 			SDL_assert(tgtPoc);
-			cc->camera->LookAt(poc->pos, tgtPoc->pos, vector3d(0, 1, 0));
-
-			matrix4x4d vmd = cc->camera->orient.Transpose();
-			vmd.SetTranslate(cc->camera->pos);
-			cc->camera->viewMatrix = vmd;
+			cc->camera->viewMatrix = matrix4x4d::LookAt(poc->pos, tgtPoc->pos, vector3d(0, 1, 0));
 		} else if (att) {
 			auto tgtPoc = att->target.component<PosOrientComponent>();
 			SDL_assert(tgtPoc);
