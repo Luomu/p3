@@ -93,6 +93,14 @@ struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
 	vector3d angular;
 };
 
+//prototype component indicating an entity can fire a laser from its center
+//(requires pos, orient)
+struct WeaponComponent : public entityx::Component<WeaponComponent> {
+	WeaponComponent() : firing(false) {}
+
+	bool firing;
+};
+
 //a body
 //has position
 //has orientation

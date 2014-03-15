@@ -32,4 +32,27 @@ public:
 	virtual void Render() override;
 	SceneGraph::Model* model;
 };
+
+//has a vtx array, render state and a material
+class VertexArrayGraphic : public Graphic
+{
+public:
+	VertexArrayGraphic(Graphics::Renderer*);
+	virtual void Render() override;
+
+	Graphics::VertexArray* vertexArray;
+	Graphics::RenderState* renderState;
+	Graphics::Material* material;
+
+	matrix4x4d renderTransform;
+};
+
+class LaserBoltGraphic : public VertexArrayGraphic
+{
+public:
+	LaserBoltGraphic(Graphics::Renderer*);
+
+	static void InitResources(Graphics::Renderer*);
+};
+
 }

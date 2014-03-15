@@ -28,6 +28,9 @@ KEY_BINDING(yawRight, "BindYawRight", Lang::YAW_RIGHT, SDLK_KP_6, 0)
 KEY_BINDING(rollLeft, "BindRollLeft", Lang::ROLL_LEFT, SDLK_KP_7, 0)
 KEY_BINDING(rollRight, "BindRollRight", Lang::ROLL_RIGHT, SDLK_KP_9, 0)
 
+BINDING_GROUP(Lang::WEAPONS)
+KEY_BINDING(firePrimary, "FirePrimary", Lang::FIRE_PRIMARY, SDLK_LCTRL, 0)
+
 BINDING_GROUP(Lang::MISCELLANEOUS)
 KEY_BINDING(toggleLuaConsole, "BindToggleLuaConsole", Lang::TOGGLE_LUA_CONSOLE, SDLK_BACKQUOTE, 0)
 BINDING_PAGE_END()

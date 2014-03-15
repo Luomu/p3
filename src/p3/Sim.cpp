@@ -24,6 +24,7 @@ Sim::Sim()
 	m_inputSystem.reset(new PlayerInputSystem());
 	m_thrusterSystem.reset(new ThrusterSystem());
 	m_transInterpSystem.reset(new TransInterpSystem());
+	m_weaponSystem.reset(new WeaponSystem(renderer));
 	m_cameraUpdateSystem.reset(new CameraUpdateSystem());
 
 	//init "player"
@@ -36,6 +37,7 @@ Sim::Sim()
 	player.assign<MassComponent>(10.0);
 	player.assign<DynamicsComponent>();
 	player.assign<ThrusterComponent>();
+	player.assign<WeaponComponent>();
 	player.assign<PlayerInputComponent>();
 
 	//init camera
@@ -86,6 +88,7 @@ void Sim::Execute(double time)
 	//update systems
 	m_inputSystem->update(m_entities, m_eventManager, time);
 	m_thrusterSystem->update(m_entities, m_eventManager, time);
+	m_weaponSystem->update(m_entities, m_eventManager, time);
 	m_dynamicsSystem->update(m_entities, m_eventManager, time);
 	m_cameraUpdateSystem->update(m_entities, m_eventManager, time);
 
