@@ -21,6 +21,7 @@ Sim::Sim()
 	m_scene->AddGraphic(m_starfield, Scene::RenderBin::BACKGROUND);
 
 	m_dynamicsSystem.reset(new DynamicsSystem());
+	m_projectileSystem.reset(new ProjectileSystem());
 	m_inputSystem.reset(new PlayerInputSystem());
 	m_thrusterSystem.reset(new ThrusterSystem());
 	m_transInterpSystem.reset(new TransInterpSystem());
@@ -90,6 +91,7 @@ void Sim::Execute(double time)
 	m_thrusterSystem->update(m_entities, m_eventManager, time);
 	m_weaponSystem->update(m_entities, m_eventManager, time);
 	m_dynamicsSystem->update(m_entities, m_eventManager, time);
+	m_projectileSystem->update(m_entities, m_eventManager, time);
 	m_cameraUpdateSystem->update(m_entities, m_eventManager, time);
 
 	if (totalElapsed > 30) {

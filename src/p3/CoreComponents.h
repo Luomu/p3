@@ -93,6 +93,14 @@ struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
 	vector3d angular;
 };
 
+//Simplified physics for a projectile. Dies after a timeout.
+struct ProjectileComponent : public entityx::Component<ProjectileComponent> {
+	ProjectileComponent(vector3d parentVel, vector3d projVel, double timeout) : baseVel(parentVel), dirVel(projVel), lifetime(timeout) {}
+	vector3d baseVel;
+	vector3d dirVel;
+	double lifetime;
+};
+
 //prototype component indicating an entity can fire a laser from its center
 //(requires pos, orient)
 struct WeaponComponent : public entityx::Component<WeaponComponent> {

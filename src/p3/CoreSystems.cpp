@@ -9,14 +9,32 @@ void WeaponSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> event
 		ent_ptr<WeaponComponent> wc = entity.component<WeaponComponent>();
 		if (wc->firing) {
 			ent_ptr<PosOrientComponent> ownerPoc = entity.component<PosOrientComponent>();
+			ent_ptr<DynamicsComponent> ownerDc = entity.component<DynamicsComponent>();
 
 			//laser bolt
 			Entity laser = em->create();
 			ref_ptr<LaserBoltGraphic> lc(new LaserBoltGraphic(m_renderer));
 			laser.assign<GraphicComponent>(lc);
 			laser.assign<PosOrientComponent>(ownerPoc->pos, ownerPoc->orient);
+			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0,0,-100), 3.0);
 			wc->firing = false;
 		}
 	}
 }
+
+void ProjectileSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt)
+{
+	for (auto entity : em->entities_with_components<ProjectileComponent>()) {
+		ent_ptr<ProjectileComponent> pc = entity.component<ProjectileComponent>();
+		pc->lifetime -= dt;
+		if (pc->lifetime < 0)
+			entity.destroy();
+		else {
+			ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
+
+			poc->pos += (pc->baseVel + pc->dirVel) * dt;
+		}
+	}
+}
+
 }

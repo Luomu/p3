@@ -39,6 +39,7 @@ private:
 
 	//systems
 	ent_ptr<DynamicsSystem> m_dynamicsSystem;
+	ent_ptr<ProjectileSystem> m_projectileSystem;
 	ent_ptr<PlayerInputSystem> m_inputSystem;
 	ent_ptr<ThrusterSystem> m_thrusterSystem;
 	ent_ptr<WeaponSystem> m_weaponSystem;
