@@ -64,8 +64,6 @@ Space::Space(Game *game)
 	, m_processingFinalizationQueue(false)
 #endif
 {
-	m_background.reset(new Background::Container(Pi::renderer, Pi::rng));
-
 	m_rootFrame.reset(new Frame(0, Lang::SYSTEM));
 	m_rootFrame->SetRadius(FLT_MAX);
 
@@ -83,10 +81,6 @@ Space::Space(Game *game, const SystemPath &path)
 #endif
 {
 	m_starSystem = StarSystemCache::GetCached(path);
-
-	Uint32 _init[5] = { path.systemIndex, Uint32(path.sectorX), Uint32(path.sectorY), Uint32(path.sectorZ), UNIVERSE_SEED };
-	Random rand(_init, 5);
-	m_background.reset(new Background::Container(Pi::renderer, rand));
 
 	// XXX set radius in constructor
 	m_rootFrame.reset(new Frame(0, Lang::SYSTEM));
@@ -113,9 +107,6 @@ Space::Space(Game *game, Serializer::Reader &rd, double at_time)
 	m_starSystem = StarSystem::Unserialize(rd);
 
 	const SystemPath &path = m_starSystem->GetPath();
-	Uint32 _init[5] = { path.systemIndex, Uint32(path.sectorX), Uint32(path.sectorY), Uint32(path.sectorZ), UNIVERSE_SEED };
-	Random rand(_init, 5);
-	m_background.reset(new Background::Container(Pi::renderer, rand));
 
 	RebuildSystemBodyIndex();
 

@@ -5,16 +5,12 @@
 #define _INTRO_H
 
 #include "Cutscene.h"
-#include "Background.h"
 
 class Intro : public Cutscene {
 public:
 	Intro(Graphics::Renderer *r, int width, int height);
 	~Intro();
 	virtual void Draw(float time);
-
-private:
-	std::unique_ptr<Background::Container> m_background;
 };
 
 #endif

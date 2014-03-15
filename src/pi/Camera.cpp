@@ -158,12 +158,6 @@ void Camera::Draw(const Body *excludeBody)
 
 	m_renderer->ClearScreen();
 
-	matrix4x4d trans2bg;
-	Frame::GetFrameTransform(Pi::game->GetSpace()->GetRootFrame(), camFrame, trans2bg);
-	trans2bg.ClearToRotOnly();
-
-	Pi::game->GetSpace()->GetBackground()->Draw(trans2bg);
-
 	for (std::list<BodyAttrs>::iterator i = m_sortedBodies.begin(); i != m_sortedBodies.end(); ++i) {
 		BodyAttrs *attrs = &(*i);
 

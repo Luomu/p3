@@ -51,7 +51,9 @@ StarfieldGraphic::StarfieldGraphic(Graphics::Renderer* r, Random& rng)
 
 void StarfieldGraphic::Render()
 {
-	m_renderer->SetTransform(m_renderer->GetViewMatrix());
+	matrix4x4d vt = m_renderer->GetViewMatrix();
+	vt.ClearToRotOnly();
+	m_renderer->SetTransform(vt);
 	m_renderer->DrawBuffer(m_vertexBuffer.get(), m_renderState, m_material.Get(), Graphics::POINTS);
 }
 

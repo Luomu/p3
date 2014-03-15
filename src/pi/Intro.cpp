@@ -21,7 +21,6 @@ Intro::Intro(Graphics::Renderer *r, int width, int height)
 {
 	using Graphics::Light;
 
-	m_background.reset(new Background::Container(r, Pi::rng));
 	m_ambientColor = Color(0);
 
 	const Color one = Color::WHITE;
@@ -50,5 +49,4 @@ void Intro::Draw(float _time)
 	// rotate background by time, and a bit extra Z so it's not so flat
 	matrix4x4d brot = matrix4x4d::RotateXMatrix(-0.05*_time) * matrix4x4d::RotateZMatrix(0.6);
 	m_renderer->ClearDepthBuffer();
-	m_background->Draw(brot);
 }

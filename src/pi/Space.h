@@ -11,7 +11,6 @@
 #include "RefCounted.h"
 #include "galaxy/SectorCache.h"
 #include "galaxy/StarSystem.h"
-#include "Background.h"
 #include "IterationProxy.h"
 
 class Body;
@@ -67,8 +66,6 @@ public:
 	IterationProxy<std::list<Body*> > GetBodies() { return MakeIterationProxy(m_bodies); }
 	const IterationProxy<const std::list<Body*> > GetBodies() const { return MakeIterationProxy(m_bodies); }
 
-	Background::Container *GetBackground() { return m_background.get(); }
-
 	// body finder delegates
 	typedef std::vector<Body*> BodyNearList;
 	typedef BodyNearList::iterator BodyNearIterator;
@@ -116,10 +113,6 @@ private:
 	std::vector<Frame*> m_frameIndex;
 	std::vector<Body*>  m_bodyIndex;
 	std::vector<SystemBody*> m_sbodyIndex;
-
-	//background (elements that are infinitely far away,
-	//e.g. starfield and milky way)
-	std::unique_ptr<Background::Container> m_background;
 
 	class BodyNearFinder {
 	public:

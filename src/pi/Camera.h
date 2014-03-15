@@ -9,8 +9,8 @@
 #include "RefCounted.h"
 #include "vector3.h"
 #include "matrix4x4.h"
-#include "Background.h"
 #include "Body.h"
+#include "graphics/Material.h"
 
 class Frame;
 namespace Graphics { class Renderer; }

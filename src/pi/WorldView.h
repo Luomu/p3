@@ -9,7 +9,6 @@
 #include "gui/GuiWidget.h"
 #include "UIView.h"
 #include "Serializer.h"
-#include "Background.h"
 #include "EquipType.h"
 #include "Camera.h"
 #include "CameraController.h"
