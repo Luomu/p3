@@ -1,5 +1,6 @@
 #include "p3/Graphic.h"
 #include "graphics/TextureBuilder.h"
+
 namespace p3
 {
 
@@ -10,6 +11,15 @@ using Graphics::Material;
 VertexArray* s_laserVertices = nullptr;
 RenderState* s_laserState    = nullptr;
 Material*    s_laserMaterial = nullptr;
+
+Graphic::Graphic(Graphics::Renderer* r)
+	: m_renderer(r)
+{
+}
+
+Graphic::~Graphic()
+{
+}
 
 void LaserBoltGraphic::InitResources(Graphics::Renderer* r)
 {

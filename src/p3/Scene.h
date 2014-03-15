@@ -41,6 +41,7 @@ public:
 	//only non-background graphics are expected to be in components
 	void receive(const entityx::ComponentAddedEvent<GraphicComponent>&);
 	void receive(const entityx::ComponentRemovedEvent<GraphicComponent>&);
+	void receive(const entityx::EntityDestroyedEvent&);
 
 private:
 	Graphics::Renderer* m_renderer;

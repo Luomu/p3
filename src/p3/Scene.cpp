@@ -38,6 +38,7 @@ Scene::Scene(Graphics::Renderer* r, ent_ptr<EntityManager> em, ent_ptr<EventMana
 	ev->subscribe<entityx::ComponentRemovedEvent<CameraComponent>>(*this);
 	ev->subscribe<entityx::ComponentAddedEvent<GraphicComponent>>(*this);
 	ev->subscribe<entityx::ComponentRemovedEvent<GraphicComponent>>(*this);
+	ev->subscribe<entityx::EntityDestroyedEvent>(*this);
 }
 
 void Scene::Render()
@@ -151,6 +152,15 @@ void Scene::receive(const entityx::ComponentAddedEvent<GraphicComponent>& ev)
 void Scene::receive(const entityx::ComponentRemovedEvent<GraphicComponent>& ev)
 {
 	RemoveGraphic(ev.component->graphic.Get());
+}
+
+void Scene::receive(const entityx::EntityDestroyedEvent& ev)
+{
+	//may be faster if a Graphic unregisters itself
+	Entity ent = ev.entity;
+	ent_ptr<GraphicComponent> gc = ent.component<GraphicComponent>();
+	if (gc)
+		RemoveGraphic(gc->graphic.Get());
 }
 
 }

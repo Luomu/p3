@@ -7,18 +7,23 @@
 
 namespace p3
 {
+class Scene;
 /**
  * Basic drawable object, register to Scene
- * for drawing.
+ * (only once) for drawing.
+ * Upon destruction, a Graphic unregisters itself
+ * from the Scene.
  */
 class Graphic : public RefCounted
 {
 public:
-	Graphic(Graphics::Renderer* r) : m_renderer(r) { }
-	virtual ~Graphic() { }
+	Graphic(Graphics::Renderer* r);
+	virtual ~Graphic();
 	virtual void Render() = 0;
 
 	matrix4x4d modelTransform;
+
+protected:
 	Graphics::Renderer* m_renderer;
 };
 
