@@ -87,7 +87,8 @@ Sim::Sim()
 		camc->camera.reset(new Camera());
 		camc->camera->viewport = vector4f(0.5f, 0.5f, 0.5f, 0.5f);
 		camera.assign(camc);
-		camera.assign<PosOrientComponent>(vector3d(0, -10, 50), matrix3x3d(1.0));
+		camera.assign<PosOrientComponent>(vector3d(100, -10, -10), matrix3x3d(1.0));
+		camera.assign<CameraLookAtComponent>(obstacle);
 	}
 	//right bottom camera
 	{
@@ -98,7 +99,7 @@ Sim::Sim()
 		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 0.5f);
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
-		camera.assign<ViewFromEntityComponent>(player);
+		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));
 	}
 }
 
