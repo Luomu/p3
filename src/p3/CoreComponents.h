@@ -82,10 +82,15 @@ struct CollisionMeshComponent : public entityx::Component<CollisionMeshComponent
 	Entity owner; //needed forr collider
 };
 
-//contains a generic graphic for rendering
+/**
+ * Takes ownership of the graphic
+ * Graphics should not be shared
+ */
 struct GraphicComponent : public entityx::Component<GraphicComponent> {
-	GraphicComponent(ref_ptr<Graphic> g)
-		: graphic(g) {}
+	GraphicComponent(Graphic* g)
+	{
+		graphic.Reset(g);
+	}
 
 	ref_ptr<Graphic> graphic;
 };

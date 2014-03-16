@@ -38,8 +38,7 @@ Sim::Sim()
 	{
 		auto model = p3::game->GetModelCache()->FindModel("natrix");
 		SDL_assert(model);
-		ref_ptr<ModelGraphic> mc(new ModelGraphic(renderer, model));
-		player.assign<GraphicComponent>(mc);
+		player.assign<GraphicComponent>(new ModelGraphic(renderer, model));
 		player.assign<PosOrientComponent>();
 		player.assign<MassComponent>(10.0);
 		player.assign<DynamicsComponent>();
@@ -56,8 +55,7 @@ Sim::Sim()
 	{
 		auto model = p3::game->GetModelCache()->FindModel("kbuilding02");
 		obstacle.assign<PosOrientComponent>(vector3d(0, 0, -200), matrix3x3d(1.0));
-		ref_ptr<ModelGraphic> mc(new ModelGraphic(renderer, model));
-		obstacle.assign<GraphicComponent>(mc);
+		obstacle.assign<GraphicComponent>(new ModelGraphic(renderer, model));
 		obstacle.assign<MassComponent>(100.0);
 		obstacle.assign<DynamicsComponent>();
 		obstacle.assign<CollisionMeshComponent>(obstacle, model->GetCollisionMesh());
@@ -67,7 +65,7 @@ Sim::Sim()
 		Entity hangAroundMember = m_entities->create();
 		hangAroundMember.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
 		hangAroundMember.assign<AttachToEntityComponent>(obstacle, vector3d(0, 50, 0));
-		hangAroundMember.assign<GraphicComponent>(ref_ptr<ModelGraphic>(new ModelGraphic(renderer, model)));
+		hangAroundMember.assign<GraphicComponent>(new ModelGraphic(renderer, model));
 	}
 
 	//init camera

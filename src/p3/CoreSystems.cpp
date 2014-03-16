@@ -13,8 +13,7 @@ void WeaponSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> event
 
 			//laser bolt
 			Entity laser = em->create();
-			ref_ptr<LaserBoltGraphic> lc(new LaserBoltGraphic(m_renderer));
-			laser.assign<GraphicComponent>(lc);
+			laser.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
 			laser.assign<PosOrientComponent>(ownerPoc->pos, ownerPoc->orient);
 			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0, 0, -100), 3.0);
 			wc->firing = false;
