@@ -31,4 +31,10 @@ class CollisionSystem : public entityx::System<CollisionSystem>
 public:
 	virtual void update(ent_ptr<entityx::EntityManager> es, ent_ptr<entityx::EventManager> events, double dt) override;
 };
+
+class AttachToSystem : public entityx::System<AttachToSystem>
+{
+public:
+	virtual void update(ent_ptr<entityx::EntityManager> em, ent_ptr<entityx::EventManager> events, double dt) override;
+};
 }

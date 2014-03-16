@@ -120,6 +120,9 @@ void Scene::AddGraphic(Graphic* g, RenderBin bin)
 	if (bin == RenderBin::BACKGROUND)
 		gb = &m_bgGraphics;
 
+	//don't add twice
+	SDL_assert(gb->end() == std::find(gb->begin(), gb->end(), g));
+
 	gb->push_back(g);
 }
 

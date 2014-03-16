@@ -26,22 +26,29 @@ void CameraUpdateSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager>
 		ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
 		SDL_assert(poc);
 		auto clc = entity.component<CameraLookAtComponent>();
-		auto att = entity.component<AttachToEntityComponent>();
+		auto att = entity.component<ViewFromEntityComponent>();
+
+		if (att) {
+			auto tgtPoc = att->target.component<PosOrientComponent>();
+			SDL_assert(tgtPoc);
+			poc->pos = tgtPoc->pos + tgtPoc->orient * vector3d(0, 5, 5);
+			poc->orient = tgtPoc->orient;
+		}
+
 		if (clc) {
 			auto tgtPoc = clc->target.component<PosOrientComponent>();
 			SDL_assert(tgtPoc);
 			cc->camera->viewMatrix = matrix4x4d::LookAt(poc->pos, tgtPoc->pos, vector3d(0, 1, 0));
 		} else if (att) {
 			auto tgtPoc = att->target.component<PosOrientComponent>();
-			SDL_assert(tgtPoc);
-			cc->camera->pos = tgtPoc->pos + tgtPoc->orient * vector3d(0, 5, 30);
+			cc->camera->pos    = poc->pos;
 			cc->camera->orient = tgtPoc->orient;
 
 			matrix4x4d vmd = cc->camera->orient;
 			vmd.SetTranslate(cc->camera->pos);
 			cc->camera->viewMatrix = vmd.InverseOf();
 		} else {
-			cc->camera->pos = poc->pos;
+			cc->camera->pos    = poc->pos;
 			cc->camera->orient = poc->orient;
 
 			matrix4x4d vmd = cc->camera->orient;

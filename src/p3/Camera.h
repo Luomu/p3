@@ -36,8 +36,8 @@ struct CameraLookAtComponent : public entityx::Component<CameraLookAtComponent> 
 	Entity target; //should have a PosOrientComponent
 };
 
-struct AttachToEntityComponent : public entityx::Component<AttachToEntityComponent> {
-	AttachToEntityComponent(Entity tgt) : target(tgt) {}
+struct ViewFromEntityComponent : public entityx::Component<ViewFromEntityComponent> {
+	ViewFromEntityComponent(Entity tgt) : target(tgt) {}
 	Entity target; //should have a PosOrientComponent
 };
 

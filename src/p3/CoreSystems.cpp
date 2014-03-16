@@ -48,6 +48,17 @@ void CollisionSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> ev
 	}
 }
 
+void AttachToSystem::update(ent_ptr<entityx::EntityManager> em, ent_ptr<entityx::EventManager> events, double dt)
+{
+	for (auto entity : em->entities_with_components<AttachToEntityComponent, PosOrientComponent>()) {
+		auto att = entity.component<AttachToEntityComponent>();
+		auto poc = entity.component<PosOrientComponent>();
+		auto tgtPoc = att->target.component<PosOrientComponent>();
+		SDL_assert(tgtPoc);
+		poc->pos    = tgtPoc->pos + tgtPoc->orient * att->offset;
+		poc->orient = tgtPoc->orient;
+	}
+}
 
 
 }

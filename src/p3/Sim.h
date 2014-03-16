@@ -40,6 +40,7 @@ private:
 
 	//systems
 	ent_ptr<DynamicsSystem> m_dynamicsSystem;
+	ent_ptr<AttachToSystem> m_attachToSystem;
 	ent_ptr<CollisionSystem> m_collisionSystem;
 	ent_ptr<ProjectileSystem> m_projectileSystem;
 	ent_ptr<PlayerInputSystem> m_inputSystem;

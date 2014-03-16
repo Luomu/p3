@@ -24,6 +24,7 @@ Sim::Sim()
 	m_collSpace.reset(new CollisionSpace()); //ZZZ temp!
 
 	m_dynamicsSystem.reset(new DynamicsSystem());
+	m_attachToSystem.reset(new AttachToSystem());
 	m_collisionSystem.reset(new CollisionSystem());
 	m_projectileSystem.reset(new ProjectileSystem());
 	m_inputSystem.reset(new PlayerInputSystem());
@@ -51,17 +52,22 @@ Sim::Sim()
 	}
 
 	//some scenery
+	Entity obstacle = m_entities->create();
 	{
-		auto model = p3::game->GetModelCache()->FindModel("kbuilding01");
-		Entity obstacle = m_entities->create();
+		auto model = p3::game->GetModelCache()->FindModel("kbuilding02");
 		obstacle.assign<PosOrientComponent>(vector3d(0, 0, -200), matrix3x3d(1.0));
 		ref_ptr<ModelGraphic> mc(new ModelGraphic(renderer, model));
 		obstacle.assign<GraphicComponent>(mc);
-		obstacle.assign<MassComponent>(10.0);
+		obstacle.assign<MassComponent>(100.0);
 		obstacle.assign<DynamicsComponent>();
 		obstacle.assign<CollisionMeshComponent>(obstacle, model->GetCollisionMesh());
 
 		m_collSpace->AddGeom(obstacle.component<CollisionMeshComponent>()->geom.get());
+
+		Entity hangAroundMember = m_entities->create();
+		hangAroundMember.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
+		hangAroundMember.assign<AttachToEntityComponent>(obstacle, vector3d(0, 50, 0));
+		hangAroundMember.assign<GraphicComponent>(ref_ptr<ModelGraphic>(new ModelGraphic(renderer, model)));
 	}
 
 	//init camera
@@ -94,7 +100,7 @@ Sim::Sim()
 		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 0.5f);
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
-		camera.assign<AttachToEntityComponent>(player);
+		camera.assign<ViewFromEntityComponent>(player);
 	}
 }
 
@@ -157,6 +163,7 @@ void Sim::Execute(double time)
 	m_thrusterSystem->update(m_entities, m_eventManager, time);
 	m_weaponSystem->update(m_entities, m_eventManager, time);
 	m_dynamicsSystem->update(m_entities, m_eventManager, time);
+	m_attachToSystem->update(m_entities, m_eventManager, time);
 	m_projectileSystem->update(m_entities, m_eventManager, time);
 	m_collisionSystem->update(m_entities, m_eventManager, time);
 	m_collSpace->Collide(&hitCallback);

@@ -116,6 +116,17 @@ struct WeaponComponent : public entityx::Component<WeaponComponent> {
 	bool firing;
 };
 
+/**
+ * Copy position and orientation from another entity
+ * Requires: PosOrientComponent for this and target
+ */
+struct AttachToEntityComponent : public entityx::Component<AttachToEntityComponent> {
+	AttachToEntityComponent(Entity tgt, vector3d offset_)
+		: target(tgt), offset(offset_) {}
+	Entity target;
+	vector3d offset;
+};
+
 //a body
 //has position
 //has orientation
