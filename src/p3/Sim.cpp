@@ -101,6 +101,10 @@ Sim::Sim()
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
 		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));
 	}
+
+	//init HUD
+	m_speedLines.reset(new SpeedLines(renderer, player));
+	GetScene()->AddGraphic(m_speedLines.get());
 }
 
 Sim::~Sim()
@@ -166,6 +170,7 @@ void Sim::Execute(double time)
 	m_projectileSystem->update(m_entities, m_eventManager, time);
 	m_collisionSystem->update(m_entities, m_eventManager, time);
 	m_collSpace->Collide(&hitCallback);
+	m_speedLines->Update(time);
 	m_cameraUpdateSystem->update(m_entities, m_eventManager, time);
 
 	if (totalElapsed > 30) {

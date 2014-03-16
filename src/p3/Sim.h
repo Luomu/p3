@@ -7,6 +7,7 @@
 #include "p3/Camera.h"
 #include "p3/CoreSystems.h"
 #include "collider/CollisionSpace.h"
+#include "p3/SpeedLines.h"
 
 namespace p3 {
 
@@ -55,6 +56,8 @@ private:
 
 	//some gfx
 	StarfieldGraphic* m_starfield;
+	//hud gfx, does not belong here
+	std::unique_ptr<SpeedLines> m_speedLines;
 
 	std::unique_ptr<CollisionSpace> m_collSpace; //this belongs in a frame!
 };
