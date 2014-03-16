@@ -22,4 +22,13 @@ class ProjectileSystem : public entityx::System<ProjectileSystem>
 public:
 	virtual void update(ent_ptr<entityx::EntityManager> es, ent_ptr<entityx::EventManager> events, double alpha) override;
 };
+
+/**
+ * Moves geoms to entity positions
+ */
+class CollisionSystem : public entityx::System<CollisionSystem>
+{
+public:
+	virtual void update(ent_ptr<entityx::EntityManager> es, ent_ptr<entityx::EventManager> events, double dt) override;
+};
 }

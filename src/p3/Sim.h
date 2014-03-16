@@ -6,6 +6,7 @@
 #include "p3/StarfieldGraphic.h"
 #include "p3/Camera.h"
 #include "p3/CoreSystems.h"
+#include "collider/CollisionSpace.h"
 
 namespace p3 {
 
@@ -39,6 +40,7 @@ private:
 
 	//systems
 	ent_ptr<DynamicsSystem> m_dynamicsSystem;
+	ent_ptr<CollisionSystem> m_collisionSystem;
 	ent_ptr<ProjectileSystem> m_projectileSystem;
 	ent_ptr<PlayerInputSystem> m_inputSystem;
 	ent_ptr<ThrusterSystem> m_thrusterSystem;
@@ -52,5 +54,7 @@ private:
 
 	//some gfx
 	StarfieldGraphic* m_starfield;
+
+	std::unique_ptr<CollisionSpace> m_collSpace; //this belongs in a frame!
 };
 }

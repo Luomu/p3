@@ -71,8 +71,15 @@ struct HealthComponent : public entityx::Component<HealthComponent> {
 
 //has a triangle soup collision mesh
 struct CollisionMeshComponent : public entityx::Component<CollisionMeshComponent> {
+	CollisionMeshComponent(Entity ent, RefCountedPtr<CollMesh> m)
+		: mesh(m) {
+		geom.reset(new Geom(m->GetGeomTree()));
+		owner = ent;
+		geom->SetUserData(&owner);
+	}
 	RefCountedPtr<CollMesh> mesh;
-	Geom* geom;
+	std::unique_ptr<Geom> geom;
+	Entity owner; //needed forr collider
 };
 
 //contains a generic graphic for rendering

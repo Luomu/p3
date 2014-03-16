@@ -16,7 +16,7 @@ void WeaponSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> event
 			ref_ptr<LaserBoltGraphic> lc(new LaserBoltGraphic(m_renderer));
 			laser.assign<GraphicComponent>(lc);
 			laser.assign<PosOrientComponent>(ownerPoc->pos, ownerPoc->orient);
-			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0,0,-100), 3.0);
+			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0, 0, -100), 3.0);
 			wc->firing = false;
 		}
 	}
@@ -36,5 +36,18 @@ void ProjectileSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> e
 		}
 	}
 }
+
+
+void CollisionSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt)
+{
+	for (auto entity : em->entities_with_components<CollisionMeshComponent, PosOrientComponent>()) {
+		auto cmc = entity.component<CollisionMeshComponent>();
+		auto poc = entity.component<PosOrientComponent>();
+
+		cmc->geom->MoveTo(poc->orient, poc->pos);
+	}
+}
+
+
 
 }
