@@ -32,7 +32,7 @@ public:
 	std::string ToString() const; // for serialisation
 	std::string Description() const; // for display to the user
 
-	bool IsActive() const;
+	bool IsActive(bool repeat);
 	bool Matches(const SDL_Keysym* sym) const;
 	bool Matches(const SDL_JoyButtonEvent* joy) const;
 	bool Matches(const SDL_JoyHatEvent* joy) const;
@@ -68,6 +68,8 @@ private:
 			Uint8 direction;
 		} joystickHat;
 	} u;
+
+	bool reported;
 };
 
 struct KeyAction {
@@ -80,7 +82,8 @@ struct KeyAction {
 	void SetFromString(const char* str);
 	std::string ToString() const;
 
-	bool IsActive() const;
+	bool IsPressed() { return IsActive(false); }
+	bool IsActive(bool repeat = true);
 	void CheckSDLEventAndDispatch(const SDL_Event* event);
 
 	bool Matches(const SDL_Keysym* sym) const;

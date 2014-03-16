@@ -24,7 +24,7 @@ void PlayerInputSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> 
 		if (KeyBindings::rollRight.IsActive()) wantAngVel.z -= 1.0;
 		tc->angular += wantAngVel;
 
-		if (KeyBindings::firePrimary.IsActive())
+		if (KeyBindings::firePrimary.IsPressed())
 		{
 			ent_ptr<WeaponComponent> wc = entity.component<WeaponComponent>();
 			SDL_assert(wc);

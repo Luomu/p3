@@ -52,39 +52,52 @@ static KeyAction* const s_KeyBindings[] = {
 	0
 };
 
-bool KeyBinding::IsActive() const
+bool KeyBinding::IsActive(bool repeat)
 {
+	bool result = false;
+
 	if (type == BINDING_DISABLED) {
 		return false;
 	} else if (type == KEYBOARD_KEY) {
 		if (!Keyboard::State(u.keyboard.key))
-			return false;
-		if (u.keyboard.mod == KMOD_NONE)
-			return true;
+			result = false;
 		else {
-			int mod = Keyboard::ModState();
-			if (mod & KMOD_CTRL) {
-				mod |= KMOD_CTRL;
+			if (u.keyboard.mod == KMOD_NONE)
+				result = true;
+			else {
+				int mod = Keyboard::ModState();
+				if (mod & KMOD_CTRL) {
+					mod |= KMOD_CTRL;
+				}
+				if (mod & KMOD_SHIFT) {
+					mod |= KMOD_SHIFT;
+				}
+				if (mod & KMOD_ALT) {
+					mod |= KMOD_ALT;
+				}
+				if (mod & KMOD_GUI) {
+					mod |= KMOD_GUI;
+				}
+				result = ((mod & u.keyboard.mod) == u.keyboard.mod);
 			}
-			if (mod & KMOD_SHIFT) {
-				mod |= KMOD_SHIFT;
-			}
-			if (mod & KMOD_ALT) {
-				mod |= KMOD_ALT;
-			}
-			if (mod & KMOD_GUI) {
-				mod |= KMOD_GUI;
-			}
-			return ((mod & u.keyboard.mod) == u.keyboard.mod);
 		}
 	} else if (type == JOYSTICK_BUTTON) {
-		return Joystick::ButtonState(u.joystickButton.joystick, u.joystickButton.button) != 0;
+		result = Joystick::ButtonState(u.joystickButton.joystick, u.joystickButton.button) != 0;
 	} else if (type == JOYSTICK_HAT) {
-		return Joystick::HatState(u.joystickHat.joystick, u.joystickHat.hat) == u.joystickHat.direction;
+		result = Joystick::HatState(u.joystickHat.joystick, u.joystickHat.hat) == u.joystickHat.direction;
 	} else
 		abort();
 
-	return false;
+	if (!repeat && result) {
+		if (reported)
+			result = false;
+		else
+			reported = true;
+	} else {
+		reported = false;
+	}
+
+	return result;
 }
 
 bool KeyBinding::Matches(const SDL_Keysym* sym) const
@@ -325,9 +338,9 @@ std::string KeyAction::ToString() const
 	return oss.str();
 }
 
-bool KeyAction::IsActive() const
+bool KeyAction::IsActive(bool repeat)
 {
-	return binding1.IsActive() || binding2.IsActive();
+	return binding1.IsActive(repeat) || binding2.IsActive(repeat);
 }
 
 bool KeyAction::Matches(const SDL_Keysym* sym) const
