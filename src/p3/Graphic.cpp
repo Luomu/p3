@@ -77,7 +77,7 @@ void LaserBoltGraphic::InitResources(Graphics::Renderer* r)
 void ModelGraphic::Render()
 {
 	static matrix4x4f vmf;
-	matrix4x4dtof(m_renderer->GetViewMatrix() * modelTransform, vmf);
+	matrix4x4dtof(viewTransform * modelTransform, vmf);
 	model->Render(vmf);
 }
 
@@ -91,7 +91,7 @@ VertexArrayGraphic::VertexArrayGraphic(Graphics::Renderer* r)
 
 void VertexArrayGraphic::Render()
 {
-	m_renderer->SetTransform(m_renderer->GetViewMatrix() * modelTransform);
+	m_renderer->SetTransform(viewTransform * modelTransform);
 	m_renderer->DrawTriangles(vertexArray, renderState, material);
 }
 

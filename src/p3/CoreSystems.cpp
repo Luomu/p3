@@ -10,12 +10,14 @@ void WeaponSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> event
 		if (wc->firing) {
 			ent_ptr<PosOrientComponent> ownerPoc = entity.component<PosOrientComponent>();
 			ent_ptr<DynamicsComponent> ownerDc = entity.component<DynamicsComponent>();
+			auto ownerFc = entity.component<FrameComponent>();
 
 			//laser bolt
 			Entity laser = em->create();
 			laser.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
 			laser.assign<PosOrientComponent>(ownerPoc->pos, ownerPoc->orient);
 			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0, 0, -100), 3.0);
+			laser.assign<FrameComponent>(ownerFc->frame);
 			wc->firing = false;
 		}
 	}

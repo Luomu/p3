@@ -11,6 +11,20 @@ namespace p3
 {
 
 /**
+ * For each camera, construct a temporary camera frame, then
+ * get a frame render transform for each entity. From that, give
+ * each Graphic view coords and orientation.
+ */
+class FrameRenderSystem : public entityx::System<FrameRenderSystem>
+{
+public:
+	FrameRenderSystem(Scene* scene_) : scene(scene_) {}
+	virtual void update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt) override;
+
+	Scene* scene;
+};
+
+/**
  * Rendering
  * - cameras, lights and renderable graphics are
  *   registered/unregistered when game entity
@@ -26,18 +40,15 @@ public:
 	};
 	Scene(Graphics::Renderer*, ent_ptr<EntityManager>, ent_ptr<EventManager>);
 	void Render();
+	void Render(Camera* camera);
 
 	//Register and unregister scene participants
 	//Scene doesn't own any of these instances
-	void AddCamera(Camera*); //sorted by priority
-	void RemoveCamera(Camera*);
 	void AddLight(Graphics::Light*);
 	void RemoveLight(Graphics::Light*);
 	void AddGraphic(Graphic*, RenderBin = RenderBin::NORMAL);
 	void RemoveGraphic(Graphic*, RenderBin = RenderBin::NORMAL);
 
-	void receive(const entityx::ComponentAddedEvent<CameraComponent>&);
-	void receive(const entityx::ComponentRemovedEvent<CameraComponent>&);
 	//only non-background graphics are expected to be in components
 	void receive(const entityx::ComponentAddedEvent<GraphicComponent>&);
 	void receive(const entityx::ComponentRemovedEvent<GraphicComponent>&);
@@ -48,9 +59,9 @@ private:
 
 	std::vector<Graphic*> m_bgGraphics;
 	std::vector<Graphic*> m_graphics;
-	std::vector<Camera*> m_cameras;
 	std::unordered_set<Graphics::Light*> m_lights;
 
+	ent_ptr<FrameRenderSystem> m_frameRenderSystem;
 	ent_ptr<entityx::BaseSystem> m_modelRenderSystem;
 	ent_ptr<EntityManager> m_entities;
 	ent_ptr<EventManager> m_events;

@@ -91,8 +91,9 @@ void Space::CreateTestScene(Entity player)
 		player.assign<WeaponComponent>();
 		player.assign<PlayerInputComponent>();
 		player.assign<CollisionMeshComponent>(player, model->GetCollisionMesh());
+		player.assign<FrameComponent>(GetRootFrame());
 
-		m_rootFrame->GetCollisionSpace()->AddGeom(player.component<CollisionMeshComponent>()->geom.get());
+		GetRootFrame()->GetCollisionSpace()->AddGeom(player.component<CollisionMeshComponent>()->geom.get());
 	}
 
 	//some scenery
@@ -104,6 +105,7 @@ void Space::CreateTestScene(Entity player)
 		obstacle.assign<MassComponent>(100.0);
 		obstacle.assign<DynamicsComponent>();
 		obstacle.assign<CollisionMeshComponent>(obstacle, model->GetCollisionMesh());
+		obstacle.assign<FrameComponent>(GetRootFrame());
 
 		m_rootFrame->GetCollisionSpace()->AddGeom(obstacle.component<CollisionMeshComponent>()->geom.get());
 
@@ -111,6 +113,7 @@ void Space::CreateTestScene(Entity player)
 		hangAroundMember.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
 		hangAroundMember.assign<AttachToEntityComponent>(obstacle, vector3d(0, 50, 0));
 		hangAroundMember.assign<GraphicComponent>(new ModelGraphic(renderer, model));
+		hangAroundMember.assign<FrameComponent>(GetRootFrame());
 	}
 
 	//init camera
@@ -119,12 +122,16 @@ void Space::CreateTestScene(Entity player)
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
 		camc->camera.reset(new Camera());
-		camc->camera->clearColor = Color(0, 0, 0, 0);
 		camc->camera->viewport = vector4f(0.f, 0.f, 0.5f, 1.f);
+		camc->camera->clearColor = Color(0, 40, 0, 0);
 		camera.assign(camc);
-		camera.assign<PosOrientComponent>(vector3d(0, 50, 100), matrix3x3d(1.0));
-		camera.assign<CameraLookAtComponent>(player);
+		//camera.assign<PosOrientComponent>(vector3d(0, 50, 100), matrix3x3d(1.0));
+		//camera.assign<CameraLookAtComponent>(player);
+		camera.assign<FrameComponent>(GetRootFrame());
+		camera.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
+		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 50));
 	}
+
 	//right top camera
 	{
 		Entity camera = m_entities->create();
@@ -134,6 +141,7 @@ void Space::CreateTestScene(Entity player)
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(100, -10, -10), matrix3x3d(1.0));
 		camera.assign<CameraLookAtComponent>(obstacle);
+		camera.assign<FrameComponent>(GetRootFrame());
 	}
 	//right bottom camera
 	{
@@ -145,6 +153,7 @@ void Space::CreateTestScene(Entity player)
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
 		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));
+		camera.assign<FrameComponent>(GetRootFrame());
 	}
 }
 

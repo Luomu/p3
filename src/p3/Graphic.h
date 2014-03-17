@@ -22,6 +22,10 @@ public:
 	virtual void Render() = 0;
 
 	matrix4x4d modelTransform;
+	//has to be copied here due to Frame system
+	matrix4x4d viewTransform;
+
+	double depth; //for sorting
 
 protected:
 	Graphics::Renderer* m_renderer;

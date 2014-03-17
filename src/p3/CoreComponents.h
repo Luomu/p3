@@ -133,6 +133,14 @@ struct AttachToEntityComponent : public entityx::Component<AttachToEntityCompone
 	vector3d offset;
 };
 
+/**
+ * Frame of reference the entity currently resides in
+ */
+struct FrameComponent : public entityx::Component<FrameComponent> {
+	FrameComponent(Frame* f) : frame(f) {}
+	Frame* frame;
+};
+
 //a body
 //has position
 //has orientation
