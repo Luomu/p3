@@ -38,6 +38,17 @@ void CameraUpdateSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager>
 			auto tgtPoc = clc->target.component<PosOrientComponent>();
 			SDL_assert(tgtPoc);
 			cc->camera->viewMatrix = matrix4x4d::LookAt(poc->pos, tgtPoc->pos, vector3d(0, 1, 0));
+
+			const vector3d tgt = tgtPoc->pos;
+			const vector3d eye = poc->pos;
+			const vector3d up  = vector3d(0,1,0);
+
+			const vector3d zaxis = (tgt - eye).Normalized();
+			vector3d yaxis = up.Normalized();
+			const vector3d xaxis = zaxis.Cross(yaxis).Normalized();
+			yaxis = xaxis.Cross(zaxis);
+
+			poc->orient = matrix3x3d::FromVectors(xaxis, yaxis, -zaxis);
 		} else {
 			matrix4x4d vmd = poc->orient;
 			vmd.SetTranslate(poc->pos);

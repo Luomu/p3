@@ -125,11 +125,10 @@ void Space::CreateTestScene(Entity player)
 		camc->camera->viewport = vector4f(0.f, 0.f, 0.5f, 1.f);
 		camc->camera->clearColor = Color(0, 40, 0, 0);
 		camera.assign(camc);
-		//camera.assign<PosOrientComponent>(vector3d(0, 50, 100), matrix3x3d(1.0));
-		//camera.assign<CameraLookAtComponent>(player);
+		camera.assign<PosOrientComponent>(vector3d(0, 50, 100), matrix3x3d(1.0));
+		camera.assign<CameraLookAtComponent>(player);
 		camera.assign<FrameComponent>(GetRootFrame());
-		camera.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
-		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 50));
+		//camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 50));
 	}
 
 	//right top camera
