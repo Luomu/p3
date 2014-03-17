@@ -31,7 +31,7 @@ Sim::Sim()
 	m_weaponSystem.reset(new WeaponSystem(renderer));
 	m_cameraUpdateSystem.reset(new CameraUpdateSystem());
 
-	m_space.reset(new Space(m_entities));
+	m_space.reset(new Space(m_entities, m_eventManager));
 
 	Entity player = m_entities->create();
 	m_space->CreateTestScene(player);

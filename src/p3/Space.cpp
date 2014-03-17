@@ -7,9 +7,11 @@
 namespace p3
 {
 
-Space::Space(ent_ptr<EntityManager> em)
+Space::Space(ent_ptr<EntityManager> em, ent_ptr<EventManager> ev)
 	: m_entities(em)
 {
+	ev->subscribe<entityx::EntityDestroyedEvent>(*this);
+
 	m_rootFrame.reset(new Frame(0, Lang::SYSTEM));
 	m_rootFrame->SetRadius(FLT_MAX);
 }
@@ -75,6 +77,17 @@ void Space::CollideFrame(Frame *f)
 		CollideFrame(child);
 }
 
+void Space::receive(const entityx::EntityDestroyedEvent& ev)
+{
+    Entity ent = ev.entity;
+    auto fc = ent.component<FrameComponent>();
+    auto cc = ent.component<CollisionMeshComponent>();
+    if (fc && cc)
+	{
+		fc->frame->GetCollisionSpace()->RemoveGeom(cc->geom.get());
+	}
+}
+
 void Space::CreateTestScene(Entity player)
 {
 	auto renderer = p3::game->GetRenderer();
@@ -97,8 +110,9 @@ void Space::CreateTestScene(Entity player)
 	}
 
 	//some scenery
-	Entity obstacle = m_entities->create();
+	//Entity obstacle = m_entities->create();
 	{
+		Entity obstacle = m_entities->create();
 		auto model = p3::game->GetModelCache()->FindModel("kbuilding02");
 		obstacle.assign<PosOrientComponent>(vector3d(0, 0, -200), matrix3x3d(1.0));
 		obstacle.assign<GraphicComponent>(new ModelGraphic(renderer, model));
@@ -107,7 +121,7 @@ void Space::CreateTestScene(Entity player)
 		obstacle.assign<CollisionMeshComponent>(obstacle, model->GetCollisionMesh());
 		obstacle.assign<FrameComponent>(GetRootFrame());
 
-		m_rootFrame->GetCollisionSpace()->AddGeom(obstacle.component<CollisionMeshComponent>()->geom.get());
+		GetRootFrame()->GetCollisionSpace()->AddGeom(obstacle.component<CollisionMeshComponent>()->geom.get());
 
 		Entity hangAroundMember = m_entities->create();
 		hangAroundMember.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
@@ -139,7 +153,7 @@ void Space::CreateTestScene(Entity player)
 		camc->camera->viewport = vector4f(0.5f, 0.5f, 0.5f, 0.5f);
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(100, -10, -10), matrix3x3d(1.0));
-		camera.assign<CameraLookAtComponent>(obstacle);
+		//camera.assign<CameraLookAtComponent>(obstacle);
 		camera.assign<FrameComponent>(GetRootFrame());
 	}
 	//right bottom camera

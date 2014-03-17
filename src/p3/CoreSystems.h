@@ -17,6 +17,9 @@ private:
 	Graphics::Renderer* m_renderer;
 };
 
+/**
+ * Move and collide projectiles
+ */
 class ProjectileSystem : public entityx::System<ProjectileSystem>
 {
 public:

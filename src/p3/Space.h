@@ -13,15 +13,17 @@ namespace p3
  * - calls update for frames
  * - creates entities
  */
-class Space
+class Space : public entityx::Receiver<Space>
 {
 public:
-	Space(ent_ptr<EntityManager> em);
+	Space(ent_ptr<EntityManager> em, ent_ptr<EventManager> ev);
 	void Update(double gameTime, double deltaTime);
 
 	Frame *GetRootFrame() const { return m_rootFrame.get(); }
 
 	void CreateTestScene(Entity player);
+
+	void receive(const entityx::EntityDestroyedEvent&);
 
 private:
 	void CollideFrame(Frame*);

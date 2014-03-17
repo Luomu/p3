@@ -4,6 +4,7 @@
 #include "scenegraph/Model.h"
 #include "collider/Geom.h"
 #include "p3/Graphic.h"
+#include "pi/Frame.h"
 
 /**
  * Common components. Can be moved into separate files.
@@ -108,10 +109,12 @@ struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
 
 //Simplified physics for a projectile. Dies after a timeout.
 struct ProjectileComponent : public entityx::Component<ProjectileComponent> {
-	ProjectileComponent(vector3d parentVel, vector3d projVel, double timeout) : baseVel(parentVel), dirVel(projVel), lifetime(timeout) {}
+	ProjectileComponent(vector3d parentVel, vector3d projVel, double timeout, Entity parent)
+		: baseVel(parentVel), dirVel(projVel), lifetime(timeout) { owner = parent; }
 	vector3d baseVel;
 	vector3d dirVel;
 	double lifetime;
+	Entity owner;
 };
 
 //prototype component indicating an entity can fire a laser from its center
