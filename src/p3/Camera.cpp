@@ -35,6 +35,9 @@ void CameraUpdateSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager>
 		}
 
 		if (clc) {
+			if (!clc->target.valid())
+				continue;
+
 			auto tgtPoc = clc->target.component<PosOrientComponent>();
 			SDL_assert(tgtPoc);
 			cc->camera->viewMatrix = matrix4x4d::LookAt(poc->pos, tgtPoc->pos, vector3d(0, 1, 0));

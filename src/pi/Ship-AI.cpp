@@ -110,14 +110,6 @@ void Ship::AIKill(Ship *target)
 	m_curAICmd = new AICmdKill(this, target);
 }
 
-/*
-void Ship::AIJourney(SystemBodyPath &dest)
-{
-	AIClearInstructions();
-//	m_curAICmd = new AICmdJourney(this, dest);
-}
-*/
-
 void Ship::AIFlyTo(Body *target)
 {
 	AIClearInstructions();
@@ -341,28 +333,3 @@ vector3d Ship::AIGetLeadDir(const Body *target, const vector3d& targaccel, int g
 	return leadpos.Normalized();
 }
 
-// underestimates if endspeed isn't reachable
-/*
-double Ship::AITravelTime(double targdist, double relspeed, double endspeed, double maxdecel)
-{
-//	double speed = relvel.Dot(reldir);		// speed >0 is towards
-	double dist = targdist;
-	double faccel = GetAccelFwd();
-	double time1, time2, time3;
-
-	// time to reduce speed to zero:
-	time1 = -relspeed / faccel;
-	dist += 0.5 * time1 * -relspeed;
-
-	// time to reduce speed to zero after target reached:
-	time3 = -endspeed / maxdecel;
-	dist += 0.5 * time3 * -endspeed;
-
-	// now time to cover distance between zero-vel points
-	// midpoint = intercept of two gradients
-	double m = dist*maxdecel / (faccel+maxdecel);
-	time2 = sqrt(2*m/faccel) + sqrt(2*(dist-m)/maxdecel);
-
-	return time1+time2+time3;
-}
-*/
