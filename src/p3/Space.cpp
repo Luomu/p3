@@ -105,6 +105,7 @@ void Space::CreateTestScene(Entity player)
 		player.assign<PlayerInputComponent>();
 		player.assign<CollisionMeshComponent>(player, model->GetCollisionMesh());
 		player.assign<FrameComponent>(GetRootFrame());
+		player.assign<ShipAIComponent>();
 
 		GetRootFrame()->GetCollisionSpace()->AddGeom(player.component<CollisionMeshComponent>()->geom.get());
 	}

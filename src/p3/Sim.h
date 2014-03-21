@@ -9,6 +9,7 @@
 #include "collider/CollisionSpace.h"
 #include "p3/SpeedLines.h"
 #include "p3/Space.h"
+#include "p3/ShipAISystem.h"
 
 namespace p3 {
 
@@ -50,6 +51,7 @@ private:
 	ent_ptr<PlayerInputSystem> m_inputSystem;
 	ent_ptr<ThrusterSystem> m_thrusterSystem;
 	ent_ptr<WeaponSystem> m_weaponSystem;
+	ent_ptr<ShipAISystem> m_shipAISystem;
 
 	//updated when?
 	ent_ptr<CameraUpdateSystem> m_cameraUpdateSystem;

@@ -30,6 +30,7 @@ Sim::Sim()
 	m_transInterpSystem.reset(new TransInterpSystem());
 	m_weaponSystem.reset(new WeaponSystem(renderer));
 	m_cameraUpdateSystem.reset(new CameraUpdateSystem());
+	m_shipAISystem.reset(new ShipAISystem(this));
 
 	m_space.reset(new Space(m_entities, m_eventManager));
 
@@ -54,6 +55,7 @@ void Sim::Execute(double time)
 
 	//update systems
 	m_inputSystem->update(m_entities, m_eventManager, time);
+	m_shipAISystem->update(m_entities, m_eventManager, time);
 	m_thrusterSystem->update(m_entities, m_eventManager, time);
 	m_weaponSystem->update(m_entities, m_eventManager, time);
 	m_dynamicsSystem->update(m_entities, m_eventManager, time);

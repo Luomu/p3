@@ -74,7 +74,8 @@ struct HealthComponent : public entityx::Component<HealthComponent> {
 //has a triangle soup collision mesh
 struct CollisionMeshComponent : public entityx::Component<CollisionMeshComponent> {
 	CollisionMeshComponent(Entity ent, RefCountedPtr<CollMesh> m)
-		: mesh(m) {
+		: mesh(m)
+	{
 		geom.reset(new Geom(m->GetGeomTree()));
 		owner = ent;
 		geom->SetUserData(&owner);
@@ -103,6 +104,12 @@ struct PlayerInputComponent : public entityx::Component<PlayerInputComponent> {
 struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
 	ThrusterComponent() : linear(0.0), angular(0.0) { }
 
+	vector3d GetMaxThrust(vector3d) const;
+	double   GetMaxAngThrust() const;
+	//clamped to -1,1
+	void SetLinear(vector3d v);
+	//clamped to -1,1
+	void SetAngular(vector3d v);
 	vector3d linear;
 	vector3d angular;
 };
@@ -110,7 +117,10 @@ struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
 //Simplified physics for a projectile. Dies after a timeout.
 struct ProjectileComponent : public entityx::Component<ProjectileComponent> {
 	ProjectileComponent(vector3d parentVel, vector3d projVel, double timeout, Entity parent)
-		: baseVel(parentVel), dirVel(projVel), lifetime(timeout) { owner = parent; }
+		: baseVel(parentVel), dirVel(projVel), lifetime(timeout)
+	{
+		owner = parent;
+	}
 	vector3d baseVel;
 	vector3d dirVel;
 	double lifetime;
