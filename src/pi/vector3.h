@@ -40,6 +40,7 @@ public:
 	vector3 &operator-=(const vector3 &a) { x-=a.x; y-=a.y; z-=a.z; return *this; }
 	vector3 &operator*=(const float a) { x*=a; y*=a; z*=a; return *this; }
 	vector3 &operator*=(const double a) { x*=a; y*=a; z*=a; return *this; }
+	vector3 &operator*=(const vector3 &a) { x *= a.x; y *= a.y; z *= a.z; return *this; }
 	vector3 &operator/=(const float a) { const T inva = T(1.0/a); x*=inva; y*=inva; z*=inva; return *this; }
 	vector3 &operator/=(const double a) { const T inva = T(1.0/a); x*=inva; y*=inva; z*=inva; return *this; }
 	vector3 operator-(const vector3 &a) const { return vector3(x-a.x, y-a.y, z-a.z); }
@@ -53,6 +54,7 @@ public:
 	friend vector3 operator*(const vector3 &a, const double scalar) { return vector3(T(a.x*scalar), T(a.y*scalar), T(a.z*scalar)); }
 	friend vector3 operator*(const float  scalar, const vector3 &a) { return a*scalar; }
 	friend vector3 operator*(const double scalar, const vector3 &a) { return a*scalar; }
+	friend vector3 operator*(const vector3 &a, const vector3 &b)    { return vector3(a.x * b.x, a.y * b.y, a.z * b.z); }
 	friend vector3 operator/(const vector3 &a, const float  scalar) { const T inv = 1.0/scalar; return vector3(a.x*inv, a.y*inv, a.z*inv); }
 	friend vector3 operator/(const vector3 &a, const double scalar) { const T inv = 1.0/scalar; return vector3(a.x*inv, a.y*inv, a.z*inv); }
 
