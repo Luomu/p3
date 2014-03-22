@@ -12,6 +12,7 @@
 #include "pi/matrix3x3.h"
 #include "pi/matrix4x4.h"
 #include "pi/RefCounted.h"
+#include "pi/StringF.h"
 
 namespace p3
 {

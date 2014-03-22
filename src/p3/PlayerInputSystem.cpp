@@ -9,28 +9,70 @@ namespace p3
 void PlayerInputSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> ev, double dt)
 {
 	for (auto entity : em->entities_with_components<PlayerInputComponent>()) {
-		ent_ptr<ThrusterComponent> tc = entity.component<ThrusterComponent>();
-		ent_ptr<ShipAIComponent> ai   = entity.component<ShipAIComponent>();
-		SDL_assert(tc);
+		ent_ptr<PlayerInputComponent> pic = entity.component<PlayerInputComponent>();
+		ent_ptr<ThrusterComponent> tc     = entity.component<ThrusterComponent>();
+		ent_ptr<ShipAIComponent> ai       = entity.component<ShipAIComponent>();
+		ent_ptr<PosOrientComponent> poc   = entity.component<PosOrientComponent>();
+		SDL_assert(tc && ai && poc);
 
 		bool matchLinear = true;
 		tc->linear  = vector3d(0.0);
-		if (KeyBindings::thrustIncrease.IsActive()) {
+		if (KeyBindings::thrustForward.IsActive()) {
 			tc->linear.z = -1.0;
 			matchLinear  = false;
-		} else if (KeyBindings::thrustDecrease.IsActive()) {
+		} else if (KeyBindings::thrustReverse.IsActive()) {
 			tc->linear.z = 1.0;
 			matchLinear  = false;
 		}
+		if (KeyBindings::thrustLeft.IsActive()) {
+			tc->linear.x = -1.0;
+			matchLinear  = false;
+		} else if (KeyBindings::thrustRight.IsActive()) {
+			tc->linear.x = 1.0;
+			matchLinear  = false;
+		}
+
+		//Sticky speed: don't exceed zero, if approaching from either direction,
+		//until the key is released again
+		static bool stickySpeed = false;
+		if (stickySpeed) {
+			if (!(KeyBindings::speedIncrease.IsActive() || KeyBindings::speedDecrease.IsActive()))
+				stickySpeed = false;
+		}
+
+		const double oldSpeed = pic->setSpeed;
+		if (!stickySpeed) {
+			if (KeyBindings::speedIncrease.IsActive())
+				pic->setSpeed += 500.0 * dt;
+			else if (KeyBindings::speedDecrease.IsActive())
+				pic->setSpeed -= 500.0 * dt;
+		}
+
+		if ((oldSpeed > 0.0 && pic->setSpeed <= 0.0) || (oldSpeed < 0.0 && pic->setSpeed >= 0.0)) {
+			pic->setSpeed = 0.0;
+			stickySpeed = true;
+		}
+
+		ai->targetVelocity = -poc->orient.VectorZ() * pic->setSpeed;
+
+		if (KeyBindings::overrideAutoVelocity.IsActive())
+			matchLinear = false;
+
 		ai->matchLinear = matchLinear;
 
 		vector3d wantAngVel(0.0);
-		if (KeyBindings::yawLeft.IsActive())   { wantAngVel.y += 1.0; }
-		if (KeyBindings::yawRight.IsActive())  { wantAngVel.y -= 1.0; }
-		if (KeyBindings::pitchDown.IsActive()) { wantAngVel.x -= 1.0; }
-		if (KeyBindings::pitchUp.IsActive())   { wantAngVel.x += 1.0; }
-		if (KeyBindings::rollLeft.IsActive())  { wantAngVel.z += 1.0; }
-		if (KeyBindings::rollRight.IsActive()) { wantAngVel.z -= 1.0; }
+		if (KeyBindings::yawLeft.IsActive())
+			wantAngVel.y += 1.0;
+		if (KeyBindings::yawRight.IsActive())
+			wantAngVel.y -= 1.0;
+		if (KeyBindings::pitchDown.IsActive())
+			wantAngVel.x -= 1.0;
+		if (KeyBindings::pitchUp.IsActive())
+			wantAngVel.x += 1.0;
+		if (KeyBindings::rollLeft.IsActive())
+			wantAngVel.z += 1.0;
+		if (KeyBindings::rollRight.IsActive())
+			wantAngVel.z -= 1.0;
 		ai->targetAngVelocity = wantAngVel;
 
 		if (wantAngVel.LengthSqr() >= 0.001)

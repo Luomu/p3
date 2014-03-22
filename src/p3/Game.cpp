@@ -84,13 +84,13 @@ void Game::Run()
 {
 	const Uint32 MAX_PHYSICS_TICKS = Clamp(GetConfig()->Int("MaxPhysicsCyclesPerRender"), 0, 4);
 
-	m_sim = new Sim();
-	LuaEvent::Queue("onGameStart");
-	LuaEvent::Emit();
-
 	GetUI()->DropAllLayers();
 	m_fpsLabel = GetUI()->Label("16.67");
 	GetUI()->GetTopLayer()->SetInnerWidget(m_fpsLabel);
+
+	m_sim = new Sim();
+	LuaEvent::Queue("onGameStart");
+	LuaEvent::Emit();
 
 	//http://gafferongames.com/game-physics/fix-your-timestep/
 	double currentTime = 0.001 * double(SDL_GetTicks());

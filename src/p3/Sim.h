@@ -10,6 +10,7 @@
 #include "p3/SpeedLines.h"
 #include "p3/Space.h"
 #include "p3/ShipAISystem.h"
+#include "p3/Hud.h"
 
 namespace p3 {
 
@@ -41,6 +42,7 @@ private:
 	ent_ptr<entityx::EventManager> m_eventManager;
 
 	std::unique_ptr<Space> m_space;
+	std::unique_ptr<Hud> m_hud;
 	Scene* m_scene;
 
 	//systems

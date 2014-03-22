@@ -1,4 +1,5 @@
 #pragma once
+#include "p3/Game.h"
 
 //acceptable globals:
 //p3::game

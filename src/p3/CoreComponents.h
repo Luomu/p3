@@ -99,6 +99,9 @@ struct GraphicComponent : public entityx::Component<GraphicComponent> {
 };
 
 struct PlayerInputComponent : public entityx::Component<PlayerInputComponent> {
+	PlayerInputComponent()
+		: setSpeed(0.0) { }
+	double setSpeed;
 };
 
 struct ThrusterComponent : public entityx::Component<ThrusterComponent> {

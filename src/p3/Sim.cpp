@@ -37,6 +37,7 @@ Sim::Sim()
 	Entity player = m_entities->create();
 	m_space->CreateTestScene(player);
 
+	m_hud.reset(new Hud(p3::game->GetUI(), player));
 	//init HUD
 	m_speedLines.reset(new SpeedLines(renderer, player));
 	GetScene()->AddGraphic(m_speedLines.get());
@@ -64,6 +65,7 @@ void Sim::Execute(double time)
 	m_collisionSystem->update(m_entities, m_eventManager, time);
 	m_space->Update(GetGameTime(), time);
 	m_speedLines->Update(time);
+	m_hud->Update(time);
 	m_cameraUpdateSystem->update(m_entities, m_eventManager, time);
 
 	if (totalElapsed > 30) {
