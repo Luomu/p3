@@ -35,7 +35,7 @@ Sim::Sim()
 	m_space.reset(new Space(m_entities, m_eventManager));
 
 	Entity player = m_entities->create();
-	m_space->CreateTestScene(player);
+	m_space->CreateTestScene(player, GetGameTime());
 
 	m_hud.reset(new Hud(p3::game->GetUI(), player));
 	//init HUD

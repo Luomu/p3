@@ -15,7 +15,7 @@ namespace p3
 
 //for entities with identifiable names
 struct NameComponent : public entityx::Component<NameComponent> {
-	NameComponent(std::string& n) : name(n) {}
+	NameComponent(const std::string& n) : name(n) {}
 	std::string name;
 };
 

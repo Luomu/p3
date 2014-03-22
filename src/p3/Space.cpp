@@ -3,6 +3,7 @@
 #include "p3/p3.h"
 #include "p3/Game.h"
 #include "p3/CoreComponents.h"
+#include "galaxy/Sector.h"
 
 namespace p3
 {
@@ -70,7 +71,7 @@ static void hitCallback(CollisionContact* c)
 	dc2->angVel -= hitPos2.Cross(force) * invAngInert2;
 }
 
-void Space::CollideFrame(Frame *f)
+void Space::CollideFrame(Frame* f)
 {
 	f->GetCollisionSpace()->Collide(&hitCallback);
 	for (auto child : f->GetChildren())
@@ -79,18 +80,125 @@ void Space::CollideFrame(Frame *f)
 
 void Space::receive(const entityx::EntityDestroyedEvent& ev)
 {
-    Entity ent = ev.entity;
-    auto fc = ent.component<FrameComponent>();
-    auto cc = ent.component<CollisionMeshComponent>();
-    if (fc && cc)
-	{
+	Entity ent = ev.entity;
+	auto fc = ent.component<FrameComponent>();
+	auto cc = ent.component<CollisionMeshComponent>();
+	if (fc && cc) {
 		fc->frame->GetCollisionSpace()->RemoveGeom(cc->geom.get());
 	}
 }
 
-void Space::CreateTestScene(Entity player)
+void Space::GenBody(double time, SystemBody* sbody, Frame* f)
+{
+	Entity e = m_entities->create();
+
+	if (sbody->GetType() != SystemBody::TYPE_GRAVPOINT) {
+		if (sbody->GetSuperType() == SystemBody::SUPERTYPE_STAR) {
+			CreateStar(e, sbody);
+		} else if ((sbody->GetType() == SystemBody::TYPE_STARPORT_ORBITAL) ||
+		           (sbody->GetType() == SystemBody::TYPE_STARPORT_SURFACE)) {
+			//SpaceStation *ss = new SpaceStation(sbody);
+			//b = ss;
+			return;
+		} else {
+			CreatePlanet(e, sbody);
+		}
+		e.assign<NameComponent>(sbody->GetName());
+		e.assign<PosOrientComponent>(vector3d(0.0), matrix3x3d(1.0));
+	}
+	f = MakeFrameFor(time, sbody, e, f);
+
+	for (SystemBody* child : sbody->GetChildren())
+		GenBody(time, child, f);
+}
+
+Frame* Space::MakeFrameFor(double time, SystemBody* sbody, Entity e, Frame* f)
+{
+	if (!sbody->GetParent()) {
+		e.assign<FrameComponent>(f);
+		f->SetBodies(sbody, 0);
+		return f;
+	}
+
+	if (sbody->GetType() == SystemBody::TYPE_GRAVPOINT) {
+		Frame* orbFrame = new Frame(f, sbody->GetName().c_str());
+		orbFrame->SetBodies(sbody, 0);
+		orbFrame->SetRadius(sbody->GetMaxChildOrbitalDistance() * 1.1);
+		return orbFrame;
+	}
+
+	const SystemBody::BodySuperType supertype = sbody->GetSuperType();
+
+	if ((supertype == SystemBody::SUPERTYPE_GAS_GIANT) ||
+	        (supertype == SystemBody::SUPERTYPE_ROCKY_PLANET)) {
+		// for planets we want an non-rotating frame for a few radii
+		// and a rotating frame with no radius to contain attached objects
+		double frameRadius = std::max(4.0 * sbody->GetRadius(), sbody->GetMaxChildOrbitalDistance() * 1.05);
+		Frame* orbFrame = new Frame(f, sbody->GetName().c_str(), Frame::FLAG_HAS_ROT);
+
+		printf("Creating %s\n", sbody->GetName().c_str());
+
+		orbFrame->SetBodies(sbody, 0);
+		orbFrame->SetRadius(frameRadius);
+
+		assert(sbody->IsRotating() != 0);
+		Frame* rotFrame = new Frame(orbFrame, sbody->GetName().c_str(), Frame::FLAG_ROTATING);
+		rotFrame->SetBodies(sbody, 0);
+
+		// rotating frame has atmosphere radius or feature height, whichever is larger
+		rotFrame->SetRadius(frameRadius * 0.5); //ZZZ should be body->physRadius
+
+		matrix3x3d rotMatrix = matrix3x3d::RotateX(sbody->GetAxialTilt());
+		double angSpeed = 2.0 * M_PI / sbody->GetRotationPeriod();
+		rotFrame->SetAngSpeed(angSpeed);
+
+		if (sbody->HasRotationPhase())
+			rotMatrix = rotMatrix * matrix3x3d::RotateY(sbody->GetRotationPhaseAtStart());
+		rotFrame->SetInitialOrient(rotMatrix, time);
+
+		e.assign<FrameComponent>(rotFrame);
+		return orbFrame;
+	} else if (supertype == SystemBody::SUPERTYPE_STAR) {
+		// stars want a single small non-rotating frame
+		// bigger than it's furtherest orbiting body.
+		// if there are no orbiting bodies use a frame of several radii.
+		Frame* orbFrame = new Frame(f, sbody->GetName().c_str());
+		orbFrame->SetBodies(sbody, 0);
+		double frameRadius = std::max(10.0 * sbody->GetRadius(), sbody->GetMaxChildOrbitalDistance() * 1.1);
+		// Respect the frame of other stars in the multi-star system. We still make sure that the frame ends outside
+		// the body. For a minimum separation of 1.236 radii, nothing will overlap (see StarSystem::StarSystem()).
+		if (sbody->GetParent() && frameRadius > AU * 0.11 * sbody->GetOrbMin())
+			frameRadius = std::max(1.1 * sbody->GetRadius(), AU * 0.11 * sbody->GetOrbMin());
+		orbFrame->SetRadius(frameRadius);
+		e.assign<FrameComponent>(orbFrame);
+		return orbFrame;
+	} else {
+		SDL_assert(false);
+	}
+}
+
+void Space::CreateStar(Entity e, SystemBody* sbody)
+{
+	e.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
+}
+
+void Space::CreatePlanet(Entity e, SystemBody* sbody)
+{
+	e.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
+}
+
+void Space::CreateTestScene(Entity player, double time)
 {
 	auto renderer = p3::game->GetRenderer();
+	m_renderer = renderer;
+
+	StarSystemCache::ShrinkCache(SystemPath(), true);
+	Sector::cache.ClearCache();
+	SystemPath path(10,0,0,0);
+	m_starSystem = StarSystemCache::GetCached(path);
+
+	GenBody(time, m_starSystem->m_rootBody.Get(), m_rootFrame.get());
+	m_rootFrame->UpdateOrbitRails(time, 1.0);
 
 	//init "player"
 	{

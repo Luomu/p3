@@ -10,6 +10,7 @@
 #include "p3/KeyBindings.h"
 #include "pi/Stringf.h"
 #include "p3/Graphic.h"
+#include "galaxy/Galaxy.h"
 
 //Lua API
 #include "p3/LuaEngine.h"
@@ -63,6 +64,8 @@ void Game::Init(const std::map<std::string, std::string>& options)
 
 	//init some graphics
 	LaserBoltGraphic::InitResources(GetRenderer());
+
+	Galaxy::Init();
 
 	m_console.reset(new LuaConsole(GetUI()));
 	KeyBindings::toggleLuaConsole.onPress.connect(sigc::mem_fun(m_console.get(), &LuaConsole::Toggle));
