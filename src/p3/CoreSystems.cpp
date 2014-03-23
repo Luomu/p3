@@ -17,7 +17,7 @@ void WeaponSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> event
 			Entity laser = em->create();
 			laser.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
 			laser.assign<PosOrientComponent>(ownerPoc->pos, ownerPoc->orient);
-			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0, 0, -100), 3.0, entity);
+			laser.assign<ProjectileComponent>(ownerDc->vel, ownerPoc->orient * vector3d(0, 0, -500), 3.0, entity);
 			laser.assign<FrameComponent>(ownerFc->frame);
 			wc->firing = false;
 		}
@@ -52,11 +52,10 @@ void ProjectileSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> e
 			SDL_assert(gc);
 			SDL_assert(fc);
 			clonk.destroy();
-            entity.destroy();
+			entity.destroy();
 		}
 	}
 }
-
 
 void CollisionSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt)
 {

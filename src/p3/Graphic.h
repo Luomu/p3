@@ -27,6 +27,8 @@ public:
 
 	double depth; //for sorting
 
+	vector3d projPos;
+
 protected:
 	Graphics::Renderer* m_renderer;
 };

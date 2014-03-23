@@ -15,5 +15,6 @@ private:
 
 	UI::Label* m_setSpeed;
 	UI::Label* m_velocity;
+	UI::Label* m_location;
 };
 }

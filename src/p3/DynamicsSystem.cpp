@@ -17,6 +17,8 @@ void DynamicsSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> eve
         poc->oldPos = poc->pos;
         poc->oldAngDisplacement = dc->angVel * dt;
 
+        dc->force += dc->externalForce;
+
 		dc->vel += dt * dc->force * (1.0 / mc->mass);
 		dc->angVel += dt * dc->torque * (1.0 / dc->angInertia);
 
@@ -32,6 +34,19 @@ void DynamicsSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> eve
 
 		dc->force = vector3d(0.0);
 		dc->torque = vector3d(0.0);
+
+		//calculate external forces
+		//- gravity
+		//- atmospheric drag
+		//- centrifugal/coriolis force
+        auto fc = entity.component<FrameComponent>();
+        if (fc) {
+			if (fc->frame->IsRotFrame()) {
+				vector3d angRot(0, fc->frame->GetAngSpeed(), 0);
+				dc->externalForce -= mc->mass * angRot.Cross(angRot.Cross(poc->pos));	// centrifugal
+				dc->externalForce -= 2 * mc->mass * angRot.Cross(dc->vel);			// coriolis
+			}
+        }
 	}
 }
 

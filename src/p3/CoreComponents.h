@@ -51,6 +51,7 @@ struct DynamicsComponent : public entityx::Component<DynamicsComponent> {
 		, vel(0.0)
 		, angVel(0.0)
 		, angInertia(1.0)
+		, externalForce(0.0)
 	{
 	}
 	vector3d force;
@@ -58,6 +59,9 @@ struct DynamicsComponent : public entityx::Component<DynamicsComponent> {
 	vector3d vel;
 	vector3d angVel;
 	double angInertia;
+
+	//gravity and frame rotation
+	vector3d externalForce;
 };
 
 //for entities that can be damaged and destroyed
@@ -155,6 +159,14 @@ struct AttachToEntityComponent : public entityx::Component<AttachToEntityCompone
 struct FrameComponent : public entityx::Component<FrameComponent> {
 	FrameComponent(Frame* f) : frame(f) {}
 	Frame* frame;
+};
+
+/**
+ * May be useful for debugging
+ */
+struct ColorComponent : public entityx::Component<ColorComponent> {
+	ColorComponent(Color c) : color(c) {}
+	Color color;
 };
 
 //a body

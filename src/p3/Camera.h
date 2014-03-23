@@ -24,6 +24,11 @@ public:
 	matrix3x3d orient;
 
 	matrix4x4d viewMatrix;
+
+	const Graphics::Frustum& GetFrustum() const { return m_frustum; }
+
+private:
+	Graphics::Frustum m_frustum;
 };
 
 struct CameraComponent : public entityx::Component<CameraComponent> {

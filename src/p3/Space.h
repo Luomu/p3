@@ -30,6 +30,8 @@ public:
 
 	void receive(const entityx::EntityDestroyedEvent&);
 
+	static vector3d GetInterpPosRelTo(Entity e, Frame* f);
+
 private:
 	void CollideFrame(Frame*);
 	void GenBody(double time, SystemBody* sbody, Frame* parent);

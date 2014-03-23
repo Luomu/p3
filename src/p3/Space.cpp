@@ -136,8 +136,6 @@ Frame* Space::MakeFrameFor(double time, SystemBody* sbody, Entity e, Frame* f)
 		double frameRadius = std::max(4.0 * sbody->GetRadius(), sbody->GetMaxChildOrbitalDistance() * 1.05);
 		Frame* orbFrame = new Frame(f, sbody->GetName().c_str(), Frame::FLAG_HAS_ROT);
 
-		printf("Creating %s\n", sbody->GetName().c_str());
-
 		orbFrame->SetBodies(sbody, 0);
 		orbFrame->SetRadius(frameRadius);
 
@@ -180,11 +178,13 @@ Frame* Space::MakeFrameFor(double time, SystemBody* sbody, Entity e, Frame* f)
 void Space::CreateStar(Entity e, SystemBody* sbody)
 {
 	e.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
+	e.assign<ColorComponent>(Color(255,255,0,255));
 }
 
 void Space::CreatePlanet(Entity e, SystemBody* sbody)
 {
 	e.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
+	e.assign<ColorComponent>(Color(0,255,0,255));
 }
 
 void Space::CreateTestScene(Entity player, double time)
@@ -213,6 +213,7 @@ void Space::CreateTestScene(Entity player, double time)
 		player.assign<PlayerInputComponent>();
 		player.assign<CollisionMeshComponent>(player, model->GetCollisionMesh());
 		player.assign<FrameComponent>(GetRootFrame());
+		player.assign<ColorComponent>(Color(0,255,255,255));
 		player.assign<ShipAIComponent>();
 
 		GetRootFrame()->GetCollisionSpace()->AddGeom(player.component<CollisionMeshComponent>()->geom.get());
@@ -277,6 +278,15 @@ void Space::CreateTestScene(Entity player, double time)
 		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));
 		camera.assign<FrameComponent>(GetRootFrame());
 	}
+}
+
+vector3d Space::GetInterpPosRelTo(Entity e, Frame* relTo)
+{
+	auto fc  = e.component<FrameComponent>();
+	auto poc = e.component<PosOrientComponent>();
+	vector3d fpos = fc->frame->GetInterpPositionRelTo(relTo);
+	matrix3x3d forient = fc->frame->GetInterpOrientRelTo(relTo);
+	return forient * poc->pos + fpos; //ZZZ not actually interp
 }
 
 }

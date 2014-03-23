@@ -1,5 +1,6 @@
 #include "p3/Camera.h"
 #include "p3/CoreComponents.h"
+#include "p3/p3.h"
 
 namespace p3
 {
@@ -15,7 +16,12 @@ Camera::Camera()
 	, pos(0.0)
 	, orient(1.0)
 	, viewMatrix(1.0)
+	, m_frustum(matrix4x4d(1.0), matrix4x4d(1.0))
 {
+	//w/h for aspect
+	const float width  = p3::game->GetRenderer()->GetWindow()->GetWidth() * viewport.z;
+	const float height = p3::game->GetRenderer()->GetWindow()->GetHeight() * viewport.w;
+	m_frustum = Graphics::Frustum(width, height, fovY, nearZ, farZ);
 }
 
 void CameraUpdateSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> events, double dt)

@@ -54,6 +54,8 @@ void Sim::Execute(double time)
 	static double totalElapsed = 0;
 	totalElapsed += time;
 
+	m_time += time;//ZZZ should timeaccel
+
 	//update systems
 	m_inputSystem->update(m_entities, m_eventManager, time);
 	m_shipAISystem->update(m_entities, m_eventManager, time);
@@ -84,6 +86,7 @@ void Sim::InterpolatePositions(double gameTickAlpha)
 	//update bodies
 	m_transInterpSystem->update(m_entities, m_eventManager, gameTickAlpha);
 	//update frames
+	m_space->GetRootFrame()->UpdateInterpTransform(gameTickAlpha);
 }
 
 }

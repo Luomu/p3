@@ -16,9 +16,11 @@ Hud::Hud(UI::Context* ui, Entity observer)
 
 	m_velocity = label;
 	m_setSpeed = ui->Label("1000 m/s");
+	m_location = ui->Label("Cheeseland");
 
-	box->PackEnd(m_velocity);
-	box->PackEnd(m_setSpeed);
+	box->PackEnd(m_velocity)
+	->PackEnd(m_setSpeed)
+	->PackEnd(m_location);
 }
 
 void Hud::Update(double dt)
@@ -33,5 +35,9 @@ void Hud::Update(double dt)
 	auto pic = m_observer.component<PlayerInputComponent>();
 	if (pic)
 		m_setSpeed->SetText(stringf("%0{f.0} m/s", pic->setSpeed));
+
+	auto fc = m_observer.component<FrameComponent>();
+	if (fc)
+		m_location->SetText(fc->frame->GetLabel());
 }
 }
