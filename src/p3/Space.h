@@ -5,6 +5,7 @@
 #include "pi/Frame.h"
 #include "galaxy/StarSystem.h"
 #include "graphics/Renderer.h"
+#include "p3/SpaceSystems.h"
 
 namespace p3
 {
@@ -21,16 +22,15 @@ public:
 	Space(ent_ptr<EntityManager> em, ent_ptr<EventManager> ev);
 	void Update(double gameTime, double deltaTime);
 
-	Frame* GetRootFrame() const
-	{
-		return m_rootFrame.get();
-	}
+	Frame* GetRootFrame() const { return m_rootFrame.get(); }
 
 	void CreateTestScene(Entity player, double gameTime);
 
 	void receive(const entityx::EntityDestroyedEvent&);
 
-	static vector3d GetInterpPosRelTo(Entity e, Frame* f);
+	static vector3d GetPosRelTo(Entity e, Frame* relTo);
+	static vector3d GetInterpPosRelTo(Entity e, Frame* relTo);
+	static vector3d GetVelRelTo(Entity e, Frame* relTo);
 
 private:
 	void CollideFrame(Frame*);
@@ -41,8 +41,12 @@ private:
 
 	std::unique_ptr<Frame> m_rootFrame;
 	ent_ptr<EntityManager> m_entities;
+	ent_ptr<EventManager> m_events;
 	RefCountedPtr<StarSystem> m_starSystem;
 
 	Graphics::Renderer* m_renderer;
+
+	//systems
+	ent_ptr<FrameUpdateSystem> m_frameUpdateSystem;
 };
 }

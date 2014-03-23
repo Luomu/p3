@@ -10,6 +10,8 @@ namespace p3
 
 Sim::Sim()
 	: m_running(true)
+	, m_time(0.0)
+	, m_timeAccelRate(1.0)
 {
 	m_eventManager.reset(new entityx::EventManager());
 	m_entities.reset(new entityx::EntityManager(m_eventManager));
@@ -54,7 +56,7 @@ void Sim::Execute(double time)
 	static double totalElapsed = 0;
 	totalElapsed += time;
 
-	m_time += time;//ZZZ should timeaccel
+	m_time += time * m_timeAccelRate;
 
 	//update systems
 	m_inputSystem->update(m_entities, m_eventManager, time);

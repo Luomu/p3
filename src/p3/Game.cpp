@@ -14,6 +14,7 @@
 
 //Lua API
 #include "p3/LuaEngine.h"
+#include "p3/LuaGame.h"
 #include "pi/LuaConstants.h"
 #include "pi/LuaLang.h"
 #include "pi/LuaFileSystem.h"
@@ -243,6 +244,7 @@ void Game::InitLua()
 	LuaConstants::Register(Lua::manager->GetLuaState());
 	LuaLang::Register();
 	p3::LuaEngine::Register();
+	p3::LuaGame::Register();
 	LuaFileSystem::Register();
 	LuaConsole::Register();
 

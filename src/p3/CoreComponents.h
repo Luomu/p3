@@ -84,6 +84,9 @@ struct CollisionMeshComponent : public entityx::Component<CollisionMeshComponent
 		owner = ent;
 		geom->SetUserData(&owner);
 	}
+
+	Geom* GetGeom() const { return geom.get(); }
+
 	RefCountedPtr<CollMesh> mesh;
 	std::unique_ptr<Geom> geom;
 	Entity owner; //needed forr collider

@@ -34,11 +34,14 @@ public:
 	double GetTimeStep() const { return GetTimeAccelRate() * 1.0/60.0; }
 	double GetGameTime() const { return m_time; }
 
+	void SetTimeAccelRate(double d) { m_timeAccelRate = d; }
+
 	Scene* GetScene() const { return m_scene; } //ZZZ should not be here?
 
 private:
 	bool m_running;
 	double m_time; //game time, seconds since epoch
+	double m_timeAccelRate;
 	ent_ptr<entityx::EntityManager> m_entities;
 	ent_ptr<entityx::EventManager> m_eventManager;
 

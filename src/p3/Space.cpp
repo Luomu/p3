@@ -10,19 +10,21 @@ namespace p3
 
 Space::Space(ent_ptr<EntityManager> em, ent_ptr<EventManager> ev)
 	: m_entities(em)
+	, m_events(ev)
 {
 	ev->subscribe<entityx::EntityDestroyedEvent>(*this);
 
 	m_rootFrame.reset(new Frame(0, Lang::SYSTEM));
 	m_rootFrame->SetRadius(FLT_MAX);
+
+	m_frameUpdateSystem.reset(new FrameUpdateSystem());
 }
 
 void Space::Update(double gameTime, double deltaTime)
 {
-	//update frame collision
 	CollideFrame(m_rootFrame.get());
 
-	//update frames
+	m_frameUpdateSystem->update(m_entities, m_events, deltaTime);
 	//run static update
 	m_rootFrame->UpdateOrbitRails(gameTime, deltaTime);
 	//run time step updates
@@ -213,8 +215,9 @@ void Space::CreateTestScene(Entity player, double time)
 		player.assign<PlayerInputComponent>();
 		player.assign<CollisionMeshComponent>(player, model->GetCollisionMesh());
 		player.assign<FrameComponent>(GetRootFrame());
-		player.assign<ColorComponent>(Color(0,255,255,255));
+		//player.assign<ColorComponent>(Color(0,255,255,255));
 		player.assign<ShipAIComponent>();
+		player.assign<NameComponent>("Player");
 
 		GetRootFrame()->GetCollisionSpace()->AddGeom(player.component<CollisionMeshComponent>()->geom.get());
 	}
@@ -242,6 +245,7 @@ void Space::CreateTestScene(Entity player, double time)
 
 	//init camera
 	//left camera
+	if (0)
 	{
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
@@ -256,6 +260,7 @@ void Space::CreateTestScene(Entity player, double time)
 	}
 
 	//right top camera
+	if (0)
 	{
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
@@ -273,6 +278,7 @@ void Space::CreateTestScene(Entity player, double time)
 		camc->camera.reset(new Camera());
 		camc->camera->clearColor = Color(10, 10, 10, 0);
 		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 0.5f);
+		camc->camera->viewport = vector4f(0.0f, 0.f, 1.0f, 1.0f);
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
 		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));
@@ -280,13 +286,36 @@ void Space::CreateTestScene(Entity player, double time)
 	}
 }
 
+vector3d Space::GetPosRelTo(Entity e, Frame* relTo)
+{
+	auto fc  = e.component<FrameComponent>();
+	auto poc = e.component<PosOrientComponent>();
+	SDL_assert(fc && poc);
+	const vector3d fpos = fc->frame->GetPositionRelTo(relTo);
+	const matrix3x3d forient = fc->frame->GetOrientRelTo(relTo);
+	return forient * poc->pos + fpos;
+}
+
 vector3d Space::GetInterpPosRelTo(Entity e, Frame* relTo)
 {
 	auto fc  = e.component<FrameComponent>();
 	auto poc = e.component<PosOrientComponent>();
-	vector3d fpos = fc->frame->GetInterpPositionRelTo(relTo);
-	matrix3x3d forient = fc->frame->GetInterpOrientRelTo(relTo);
-	return forient * poc->pos + fpos; //ZZZ not actually interp
+	SDL_assert(fc && poc);
+	const vector3d fpos = fc->frame->GetInterpPositionRelTo(relTo);
+	const matrix3x3d forient = fc->frame->GetInterpOrientRelTo(relTo);
+	return forient * poc->interpPos + fpos;
+}
+
+vector3d Space::GetVelRelTo(Entity e, Frame* relTo)
+{
+	auto fc  = e.component<FrameComponent>();
+	auto poc = e.component<PosOrientComponent>();
+	auto dc  = e.component<DynamicsComponent>();
+	SDL_assert(fc && poc && dc);
+	const matrix3x3d forient = fc->frame->GetOrientRelTo(relTo);
+	vector3d vel = dc->vel;
+	if (fc->frame != relTo) vel -= fc->frame->GetStasisVelocity(poc->pos);
+	return forient * vel + fc->frame->GetVelocityRelTo(relTo);
 }
 
 }
