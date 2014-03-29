@@ -45,7 +45,7 @@ public:
 	//Register and unregister scene participants
 	//Scene doesn't own any of these instances
 	void AddLight(Graphics::Light*);
-	void RemoveLight(Graphics::Light*);
+	//void RemoveLight(Graphics::Light*);
 	void AddGraphic(Graphic*, RenderBin = RenderBin::NORMAL);
 	void RemoveGraphic(Graphic*, RenderBin = RenderBin::NORMAL);
 
@@ -59,7 +59,10 @@ private:
 
 	std::vector<Graphic*> m_bgGraphics;
 	std::vector<Graphic*> m_graphics;
-	std::unordered_set<Graphics::Light*> m_lights;
+	//std::unordered_set<Graphics::Light*> m_lights;
+
+	//filled & emptied each frame
+	std::vector<Graphics::Light*> m_lights;
 
 	ent_ptr<FrameRenderSystem> m_frameRenderSystem;
 	ent_ptr<entityx::BaseSystem> m_modelRenderSystem;

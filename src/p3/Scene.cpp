@@ -25,6 +25,17 @@ void FrameRenderSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> 
 		camFrame->ClearMovement();
 		camFrame->UpdateInterpTransform(1.0);
 
+		//set up star light source(s)
+		for (auto lightEntity : em->entities_with_components<LightComponent, FrameComponent>()) {
+			auto lc  = lightEntity.component<LightComponent>();
+            auto lfc = lightEntity.component<FrameComponent>();
+            vector3d lpos = lfc->frame->GetPositionRelTo(camFrame.get());
+			const double dist = lpos.Length() / AU;
+			lpos *= 1.0/dist; // normalize
+            lc->light.SetPosition(vector3f(lpos.x, lpos.y, lpos.z));
+            scene->AddLight(&lc->light);
+		}
+
 		//copy view transform to each graphic
 		//they will be sorted later
 		for (auto drawEntity : em->entities_with_components<GraphicComponent, FrameComponent>()) {
@@ -53,9 +64,6 @@ public:
 		for (auto entity : em->entities_with_components<GraphicComponent, PosOrientComponent>()) {
 			ent_ptr<GraphicComponent> gc = entity.component<GraphicComponent>();
 			ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
-
-			//matrix4x4d modelMatrix = poc->interpOrient;
-			//modelMatrix.SetTranslate(poc->interpPos);
 
 			gc->graphic->modelTransform = poc->orient;
 			gc->graphic->modelTransform.SetTranslate(poc->pos);
@@ -104,8 +112,8 @@ void Scene::Render(Camera* cam)
 	const float aspect = (cam->viewport.z * w) / (cam->viewport.w * h);
 	m_renderer->SetViewport(cam->viewport.x * w, cam->viewport.y * h, cam->viewport.z * w, cam->viewport.w * h);
 	m_renderer->SetScissor(true,
-						   vector2f(cam->viewport.x * w, cam->viewport.y * h),
-						   vector2f(cam->viewport.z * w, cam->viewport.w * h));
+	                       vector2f(cam->viewport.x * w, cam->viewport.y * h),
+	                       vector2f(cam->viewport.z * w, cam->viewport.w * h));
 	m_renderer->SetClearColor(cam->clearColor);
 	m_renderer->ClearScreen();
 	m_renderer->SetPerspectiveProjection(cam->fovY, aspect, cam->nearZ, cam->farZ);
@@ -116,25 +124,26 @@ void Scene::Render(Camera* cam)
 
 	m_renderer->EnableFramebufferSRGB(true);
 
-	Graphics::Light dl(Graphics::Light::LIGHT_DIRECTIONAL,
-					   vector3f(0.f, 1.f, 1.f).Normalized(), Color(255), Color(255));
-	m_renderer->SetLights(1, &dl);
+	if (!m_lights.empty())
+		m_renderer->SetLights(m_lights.size(), m_lights[0]);
 
 	for (auto g : m_graphics)
 		g->Render();
 
+	m_lights.clear();
 	m_renderer->EnableFramebufferSRGB(false);
 }
 
 void Scene::AddLight(Graphics::Light* l)
 {
-	m_lights.insert(l);
+	//m_lights.insert(l);
+	m_lights.push_back(l);
 }
 
-void Scene::RemoveLight(Graphics::Light* l)
+/*void Scene::RemoveLight(Graphics::Light* l)
 {
 	m_lights.erase(l);
-}
+}*/
 
 void Scene::AddGraphic(Graphic* g, RenderBin bin)
 {

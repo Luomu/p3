@@ -181,6 +181,8 @@ void Space::CreateStar(Entity e, SystemBody* sbody)
 {
 	e.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
 	e.assign<ColorComponent>(Color(255,255,0,255));
+	Graphics::Light light(Graphics::Light::LIGHT_DIRECTIONAL, vector3f(0.f), Color(255), Color(255));
+	e.assign<LightComponent>(light);
 }
 
 void Space::CreatePlanet(Entity e, SystemBody* sbody)
@@ -245,7 +247,7 @@ void Space::CreateTestScene(Entity player, double time)
 
 	//init camera
 	//left camera
-	if (0)
+	if (1)
 	{
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
@@ -276,9 +278,9 @@ void Space::CreateTestScene(Entity player, double time)
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
 		camc->camera.reset(new Camera());
-		camc->camera->clearColor = Color(10, 10, 10, 0);
-		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 0.5f);
-		camc->camera->viewport = vector4f(0.0f, 0.f, 1.0f, 1.0f);
+		//camc->camera->clearColor = Color(10, 10, 10, 0);
+		//camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 0.5f);
+		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 1.0f);
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
 		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));

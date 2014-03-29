@@ -5,6 +5,7 @@
 #include "collider/Geom.h"
 #include "p3/Graphic.h"
 #include "pi/Frame.h"
+#include "graphics/Light.h"
 
 /**
  * Common components. Can be moved into separate files.
@@ -167,6 +168,15 @@ struct FrameComponent : public entityx::Component<FrameComponent> {
 struct ColorComponent : public entityx::Component<ColorComponent> {
 	ColorComponent(Color c) : color(c) {}
 	Color color;
+};
+
+/**
+ * This entity is a light source
+ * (right now an "infinite point light" suitable for stars)
+ */
+struct LightComponent : public entityx::Component<LightComponent> {
+	LightComponent(Graphics::Light &l) : light(l) {}
+	Graphics::Light light;
 };
 
 //a body
