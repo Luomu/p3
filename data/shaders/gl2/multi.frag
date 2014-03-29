@@ -16,11 +16,6 @@ varying vec4 vertexColor;
 #if (NUM_LIGHTS > 0)
 varying vec3 eyePos;
 varying vec3 normal;
-	#ifdef HEAT_COLOURING
-		uniform sampler2D heatGradient;
-		uniform float heatingAmount; // 0.0 to 1.0 used for `u` component of heatGradient texture
-		varying vec3 heatingDir;
-	#endif // HEAT_COLOURING
 #endif // (NUM_LIGHTS > 0)
 
 uniform Scene scene;
@@ -84,22 +79,7 @@ void main(void)
 #endif //NUM_LIGHTS
 
 #if (NUM_LIGHTS > 0)
-	#ifdef HEAT_COLOURING
-		if (heatingAmount > 0.0)
-		{
-			float dphNn = clamp(dot(heatingDir, normal), 0.0, 1.0);
-			float heatDot = heatingAmount * (dphNn * dphNn * dphNn);
-			vec4 heatColour = texture2D(heatGradient, vec2(heatDot, 0.5)); //heat gradient blend
-			gl_FragColor = color * light + specular;
-			gl_FragColor.rgb = gl_FragColor.rgb + heatColour.rgb;
-		}
-		else
-		{
-			gl_FragColor = color * light + specular;
-		}
-	#else
-		gl_FragColor = color * light + specular;
-	#endif // HEAT_COLOURING
+	gl_FragColor = color * light + specular;
 #else
 	gl_FragColor = color;
 #endif
