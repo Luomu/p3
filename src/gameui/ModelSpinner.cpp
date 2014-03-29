@@ -22,7 +22,6 @@ ModelSpinner::ModelSpinner(Context *context, SceneGraph::Model *model, const Sce
 
 	Color lc(255);
 	m_light.SetDiffuse(lc);
-	m_light.SetSpecular(lc);
 	m_light.SetPosition(vector3f(0.f, 1.f, 1.f));
 	m_light.SetType(Graphics::Light::LIGHT_DIRECTIONAL);
 }

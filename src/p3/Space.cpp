@@ -181,7 +181,7 @@ void Space::CreateStar(Entity e, SystemBody* sbody)
 {
 	e.assign<GraphicComponent>(new LaserBoltGraphic(m_renderer));
 	e.assign<ColorComponent>(Color(255,255,0,255));
-	Graphics::Light light(Graphics::Light::LIGHT_DIRECTIONAL, vector3f(0.f), Color(255), Color(255));
+	Graphics::Light light(Graphics::Light::LIGHT_DIRECTIONAL, vector3f(0.f), Color(255));
 	e.assign<LightComponent>(light);
 }
 

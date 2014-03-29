@@ -285,7 +285,7 @@ bool RendererGL2::SetLights(int numlights, const Light *lights)
 		};
 		glLightfv(GL_LIGHT0+i, GL_POSITION, pos);
 		glLightfv(GL_LIGHT0+i, GL_DIFFUSE, l.GetDiffuse().ToColor4f());
-		glLightfv(GL_LIGHT0+i, GL_SPECULAR, l.GetSpecular().ToColor4f());
+		glLightfv(GL_LIGHT0+i, GL_SPECULAR, l.GetDiffuse().ToColor4f());
 		glEnable(GL_LIGHT0+i);
 
 		if (l.GetType() == Light::LIGHT_DIRECTIONAL)
