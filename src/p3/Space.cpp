@@ -303,7 +303,7 @@ vector3d Space::GetInterpPosRelTo(Entity e, Frame* relTo)
 	SDL_assert(fc && poc);
 	const vector3d fpos = fc->frame->GetInterpPositionRelTo(relTo);
 	const matrix3x3d forient = fc->frame->GetInterpOrientRelTo(relTo);
-	return forient * poc->interpPos + fpos;
+	return forient * poc->pos + fpos; //ZZZ not interpPos
 }
 
 vector3d Space::GetVelRelTo(Entity e, Frame* relTo)

@@ -14,8 +14,8 @@ void DynamicsSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> eve
         SDL_assert(mc);
 
         //save previous
-        poc->oldPos = poc->pos;
-        poc->oldAngDisplacement = dc->angVel * dt;
+        //poc->oldPos = poc->pos;
+        //poc->oldAngDisplacement = dc->angVel * dt;
 
         dc->force += dc->externalForce;
 
@@ -55,7 +55,7 @@ void TransInterpSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> 
 	for (auto entity : em->entities_with_components<PosOrientComponent>()) {
 		ent_ptr<PosOrientComponent> poc = entity.component<PosOrientComponent>();
 
-		poc->interpPos = alpha * poc->pos + (1.0 - alpha) * poc->oldPos;
+		/*poc->interpPos = alpha * poc->pos + (1.0 - alpha) * poc->oldPos;
 
 		const double len = poc->oldAngDisplacement.Length() * (1.0 - alpha);
 		if (len > 1e-16) {
@@ -64,6 +64,7 @@ void TransInterpSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> 
 			poc->interpOrient = rot * poc->orient;
 		} else
 			poc->interpOrient = poc->orient;
+		*/
 	}
 }
 

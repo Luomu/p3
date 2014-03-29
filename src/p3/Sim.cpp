@@ -86,7 +86,7 @@ void Sim::End()
 void Sim::InterpolatePositions(double gameTickAlpha)
 {
 	//update bodies
-	m_transInterpSystem->update(m_entities, m_eventManager, gameTickAlpha);
+	//m_transInterpSystem->update(m_entities, m_eventManager, gameTickAlpha);
 	//update frames
 	m_space->GetRootFrame()->UpdateInterpTransform(gameTickAlpha);
 }

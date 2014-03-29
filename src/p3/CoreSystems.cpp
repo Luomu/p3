@@ -72,15 +72,19 @@ void AttachToSystem::update(ent_ptr<entityx::EntityManager> em, ent_ptr<entityx:
 	for (auto entity : em->entities_with_components<AttachToEntityComponent, PosOrientComponent>()) {
 		auto att = entity.component<AttachToEntityComponent>();
 		auto poc = entity.component<PosOrientComponent>();
+		auto fc  = entity.component<FrameComponent>();
 
 		if (!att->target.valid()) {
 			entity.remove<AttachToEntityComponent>();
 			continue;
 		}
 		auto tgtPoc = att->target.component<PosOrientComponent>();
+		auto tgtFc  = att->target.component<FrameComponent>();
 		SDL_assert(tgtPoc);
 		poc->pos    = tgtPoc->pos + tgtPoc->orient * att->offset;
 		poc->orient = tgtPoc->orient;
+
+		fc->frame   = tgtFc->frame;
 	}
 }
 

@@ -3,6 +3,17 @@
 namespace p3
 {
 
+PosOrientComponent::PosOrientComponent()
+	: pos(0.0), orient(1.0)
+	//,interpPos(0.0), interpOrient(1.0)
+	//, oldPos(0.0), oldAngDisplacement(0.0)
+{}
+
+PosOrientComponent::PosOrientComponent(vector3d initialPos, const matrix3x3d& initialOrient)
+	: pos(initialPos), orient(initialOrient)
+	//, interpPos(initialPos), interpOrient(initialOrient), oldPos(initialPos), oldAngDisplacement(0.0)
+{}
+
 vector3d ThrusterComponent::GetMaxThrust(vector3d v) const
 {
 	const double fakeMax = 1e3;

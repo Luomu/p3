@@ -20,22 +20,19 @@ struct NameComponent : public entityx::Component<NameComponent> {
 };
 
 struct PosOrientComponent : public entityx::Component<PosOrientComponent> {
-	PosOrientComponent()
-		: pos(0.0), orient(1.0), interpPos(0.0), interpOrient(1.0)
-		, oldPos(0.0), oldAngDisplacement(0.0) { }
-	PosOrientComponent(vector3d initialPos, const matrix3x3d& initialOrient)
-		: pos(initialPos), orient(initialOrient), interpPos(initialPos)
-		, interpOrient(initialOrient), oldPos(initialPos), oldAngDisplacement(0.0) {}
+	PosOrientComponent();
+	PosOrientComponent(vector3d initialPos, const matrix3x3d& initialOrient);
+
 	vector3d pos;
 	matrix3x3d orient;
 
 	//interpolated for drawing
-	vector3d interpPos;
-	matrix3x3d interpOrient;
+	//vector3d interpPos;
+	//matrix3x3d interpOrient;
 
 	//previous state used for interpolation
-	vector3d oldPos;
-	vector3d oldAngDisplacement;
+	//vector3d oldPos;
+	//vector3d oldAngDisplacement;
 };
 
 struct MassComponent : public entityx::Component<MassComponent> {
