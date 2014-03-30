@@ -112,8 +112,10 @@ struct PlayerInputComponent : public entityx::Component<PlayerInputComponent> {
 struct ThrusterComponent : public entityx::Component<ThrusterComponent> {
 	ThrusterComponent() : linear(0.0), angular(0.0) { }
 
+	//some stats
 	vector3d GetMaxThrust(vector3d) const;
 	double   GetMaxAngThrust() const;
+	double   GetAccelFwd() const;
 	//clamped to -1,1
 	void SetLinear(vector3d v);
 	//clamped to -1,1

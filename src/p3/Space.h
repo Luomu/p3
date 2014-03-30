@@ -31,6 +31,7 @@ public:
 	static vector3d GetPosRelTo(Entity e, Frame* relTo);
 	static vector3d GetInterpPosRelTo(Entity e, Frame* relTo);
 	static vector3d GetVelRelTo(Entity e, Frame* relTo);
+	static vector3d GetPosRelTo(Entity a, Entity b);
 
 private:
 	void CollideFrame(Frame*);

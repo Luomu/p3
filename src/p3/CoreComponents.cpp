@@ -3,6 +3,9 @@
 namespace p3
 {
 
+const double PLACEHOLDER_MASS = 10.0;
+const double PLACEHOLDER_THRUST = 1e3;
+
 PosOrientComponent::PosOrientComponent()
 	: pos(0.0), orient(1.0)
 	//,interpPos(0.0), interpOrient(1.0)
@@ -16,17 +19,21 @@ PosOrientComponent::PosOrientComponent(vector3d initialPos, const matrix3x3d& in
 
 vector3d ThrusterComponent::GetMaxThrust(vector3d v) const
 {
-	const double fakeMax = 1e3;
 	vector3d maxThrust;
-	maxThrust.x = fakeMax / 2.0;
-	maxThrust.y = fakeMax / 2.0;
-	maxThrust.z = fakeMax;
+	maxThrust.x = PLACEHOLDER_THRUST / 2.0;
+	maxThrust.y = PLACEHOLDER_THRUST / 2.0;
+	maxThrust.z = PLACEHOLDER_THRUST;
 	return maxThrust;
 }
 
 double ThrusterComponent::GetMaxAngThrust() const
 {
 	return 10.0;
+}
+
+double ThrusterComponent::GetAccelFwd() const
+{
+	return PLACEHOLDER_THRUST / PLACEHOLDER_MASS;
 }
 
 void ThrusterComponent::SetLinear(vector3d v)

@@ -57,6 +57,7 @@ private:
 	ent_ptr<PlayerInputSystem> m_inputSystem;
 	ent_ptr<ThrusterSystem> m_thrusterSystem;
 	ent_ptr<WeaponSystem> m_weaponSystem;
+	ent_ptr<AICommandSystem> m_aiCommandSystem;
 	ent_ptr<ShipAISystem> m_shipAISystem;
 
 	//updated when?

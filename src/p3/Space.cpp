@@ -206,10 +206,10 @@ void Space::CreateTestScene(Entity player, double time)
 
 	//init "player"
 	{
-		auto model = p3::game->GetModelCache()->FindModel("natrix");
+		auto model = p3::game->GetModelCache()->FindModel("kanara");
 		SDL_assert(model);
 		player.assign<GraphicComponent>(new ModelGraphic(renderer, model));
-		player.assign<PosOrientComponent>();
+		player.assign<PosOrientComponent>(vector3d(0,0,1e6), matrix3x3d(1.0));
 		player.assign<MassComponent>(10.0);
 		player.assign<DynamicsComponent>();
 		player.assign<ThrusterComponent>();
@@ -224,8 +224,32 @@ void Space::CreateTestScene(Entity player, double time)
 		GetRootFrame()->GetCollisionSpace()->AddGeom(player.component<CollisionMeshComponent>()->geom.get());
 	}
 
+	//init "AI"
+	{
+		auto model = p3::game->GetModelCache()->FindModel("natrix");
+		SDL_assert(model);
+		Entity ship = m_entities->create();
+		ship.assign<GraphicComponent>(new ModelGraphic(renderer, model));
+		ship.assign<PosOrientComponent>(vector3d(0,0,1e6 - 200), matrix3x3d(1.0));
+		ship.assign<MassComponent>(10.0);
+		ship.assign<DynamicsComponent>();
+		ship.assign<ThrusterComponent>();
+		ship.assign<WeaponComponent>();
+		ship.assign<CollisionMeshComponent>(ship, model->GetCollisionMesh());
+		ship.assign<FrameComponent>(GetRootFrame());
+		ship.assign<ColorComponent>(Color(255,0,0,255));
+		ship.assign<ShipAIComponent>();
+		ship.assign<NameComponent>("Drone");
+		ship.assign<AICommandComponent>(); //kamikaze
+		auto aicmd = ship.component<AICommandComponent>();
+		aicmd->SetKamikaze(player);
+
+		GetRootFrame()->GetCollisionSpace()->AddGeom(ship.component<CollisionMeshComponent>()->geom.get());
+	}
+
 	//some scenery
 	//Entity obstacle = m_entities->create();
+	if (0)
 	{
 		Entity obstacle = m_entities->create();
 		auto model = p3::game->GetModelCache()->FindModel("kbuilding02");
@@ -247,7 +271,7 @@ void Space::CreateTestScene(Entity player, double time)
 
 	//init camera
 	//left camera
-	if (1)
+	if (0)
 	{
 		Entity camera = m_entities->create();
 		ent_ptr<CameraComponent> camc(new CameraComponent());
@@ -279,8 +303,8 @@ void Space::CreateTestScene(Entity player, double time)
 		ent_ptr<CameraComponent> camc(new CameraComponent());
 		camc->camera.reset(new Camera());
 		//camc->camera->clearColor = Color(10, 10, 10, 0);
-		//camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 0.5f);
-		camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 1.0f);
+		camc->camera->viewport = vector4f(0.0f, 0.f, 1.0f, 1.0f);
+		//camc->camera->viewport = vector4f(0.5f, 0.f, 0.5f, 1.0f);
 		camera.assign(camc);
 		camera.assign<PosOrientComponent>(vector3d(0, 0, 0), matrix3x3d(1.0));
 		camera.assign<AttachToEntityComponent>(player, vector3d(0, 5, 10));
@@ -318,6 +342,13 @@ vector3d Space::GetVelRelTo(Entity e, Frame* relTo)
 	vector3d vel = dc->vel;
 	if (fc->frame != relTo) vel -= fc->frame->GetStasisVelocity(poc->pos);
 	return forient * vel + fc->frame->GetVelocityRelTo(relTo);
+}
+
+vector3d Space::GetPosRelTo(Entity a, Entity b)
+{
+	auto bfc = b.component<FrameComponent>();
+	auto bpoc = b.component<PosOrientComponent>();
+	return GetPosRelTo(a, bfc->frame) - bpoc->pos;
 }
 
 }

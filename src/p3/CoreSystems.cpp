@@ -47,11 +47,11 @@ void ProjectileSystem::update(ent_ptr<EntityManager> em, ent_ptr<EventManager> e
 		Entity* collEnt = static_cast<Entity*>(c.userData1);
 		if (collEnt && *collEnt != pc->owner) {
 			Entity clonk = *collEnt;
-			auto gc = clonk.component<CollisionMeshComponent>();
-			auto fc = clonk.component<FrameComponent>();
-			SDL_assert(gc);
-			SDL_assert(fc);
-			clonk.destroy();
+			//auto gc = clonk.component<CollisionMeshComponent>();
+			//auto fc = clonk.component<FrameComponent>();
+			//SDL_assert(gc);
+			//SDL_assert(fc);
+			//clonk.destroy();
 			entity.destroy();
 		}
 	}
